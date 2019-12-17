@@ -4,21 +4,29 @@
 
 void JumpshipEngine::Initialize()
 {
-	m_logger->debug()<< "Initialize" << std::endl;
+	logDebug("Initialize");
+	logDebug("Serializering input");
+	logDebug("Setup input component");
+	
+
 }
 void JumpshipEngine::Load()
 {
-	m_logger->debug() << "Load level" << std::endl;
+	logDebug("Loading scene");
 }
 void JumpshipEngine::Update()
 {
-	m_logger->debug() << "Update" << std::endl;
+	logDebug("Update");
+	// while(1)
+	// {
+		
+	// }
 }
 void JumpshipEngine::Unload()
 {
-	m_logger->debug() << "Unload" << std::endl;
+	logDebug("Unload");
 }
 void JumpshipEngine::Release()
 {
-	m_logger->debug() << "Release" << std::endl;
+	logDebug("Release");
 }
