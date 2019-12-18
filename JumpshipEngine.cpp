@@ -1,32 +1,25 @@
 #include "JumpshipEngine.h"
-#include "Logger.h"
 
 
 void JumpshipEngine::Initialize()
 {
-	logDebug("Initialize");
-	logDebug("Serializering input");
-	logDebug("Setup input component");
-	
-
+	LogDebug("Initialize");
+	LogDebug("Serializering input");
+	LogDebug("Setup input component");
 }
 void JumpshipEngine::Load()
 {
-	logDebug("Loading scene");
+	LogDebug("Loading scene");
 }
 void JumpshipEngine::Update()
 {
-	logDebug("Update");
-	// while(1)
-	// {
-		
-	// }
+	LogDebug("Update");
 }
 void JumpshipEngine::Unload()
 {
-	logDebug("Unload");
+	LogDebug("Unload");
 }
 void JumpshipEngine::Release()
 {
-	logDebug("Release");
+	LogDebug("Release");
 }
