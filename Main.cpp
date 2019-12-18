@@ -1,5 +1,6 @@
 #include "JumpshipEngine.h"
 #include "CommonHeader.h"
+
 //#include "gainput/gainput.h"
 
 int main()
@@ -18,6 +19,26 @@ int main()
 	GetEngine.Release();
 
 	profiler::dumpBlocksToFile("test.prof");
+
+  //testing input
+  while (true)
+  {
+    if (GetInput.IsKeyboardKeyPressed('K'))
+    {
+      LogDebug("K");
+    }
+
+    if (GetInput.IsKeyboardKeyDown('A'))
+    {
+      LogDebug("A");
+    }
+    //if (GetInput.IsKeyboardKeyToggled('B'))
+    //{
+    //  LogDebug("B");
+    //}
+    if (GetInput.IsKeyboardKeyPressed(VK_ESCAPE))
+      break;
+  }
 
 
 }

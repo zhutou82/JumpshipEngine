@@ -3,6 +3,7 @@
 #include "SingletonBaseClass.h"
 
 #define GetEngine Singleton<JumpshipEngine>::GetInstance()
+
 class JumpshipEngine : public Singleton<JumpshipEngine>
 {
 public:

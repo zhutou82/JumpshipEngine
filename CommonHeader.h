@@ -8,6 +8,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string>
+#include <windows.h>
+#include <XInput.h>
 /*end including all standard libraries*/
 
 /*start including all external libraries*/
@@ -22,7 +24,7 @@
 
 /*start including all internal common libraries*/
 #include "Logger.h"
-
+#include "Input.h"
 /*end including all internal common libraries*/
 
 

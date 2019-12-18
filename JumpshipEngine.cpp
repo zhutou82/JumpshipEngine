@@ -1,11 +1,13 @@
 #include "JumpshipEngine.h"
-
+#include "Input.h"
 
 void JumpshipEngine::Initialize()
 {
 	LogDebug("Initialize");
 	LogDebug("Serializering input");
 	LogDebug("Setup input component");
+
+
 }
 void JumpshipEngine::Load()
 {
