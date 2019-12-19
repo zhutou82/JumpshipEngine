@@ -1,51 +1,47 @@
 #include "CommonHeader.h"
 #include "Input.h"
 
-bool Input::IsKeyboardKeyDown(char key, bool previousFrame) const
+Input::Input()
 {
+	for (int i = 0; i < NUMBER_OF_KEYBOARDKEYS; ++i) m_pCurrKeyboardState[i] = true;
+}
 
-  //keybaord key range
-  if (key > Input::MIN_KEYBOARD_VALUE &&  key <= Input::MAX_KEYBOARD_VALUE)
+inline bool Input::IsKeyboardKeyDown(char key, bool previousFrame) const
+{
+  return GetKeyState(key) & 0x8000;
+}
+
+inline bool Input::IsKeyboardKeyPressed(char key, bool previousFrame)
+{
+	SHORT state = GetKeyState(key);
+	if (m_pCurrKeyboardState[key] && (state & 0xF0))
 	{
-    return GetKeyState(key) & 0x8000;
+		m_pCurrKeyboardState[key] = false;
+		return true;
+	}
+	else if (!m_pCurrKeyboardState[key] && !(state & 0xF0))
+	{
+		m_pCurrKeyboardState[key] = true;
 	}
 	return false;
 }
 
-bool Input::IsKeyboardKeyPressed(char key, bool previousFrame) const
+inline bool Input::IsKeyboardKeyToggled(char key, bool previousFrame) const
 {
-  static bool s = true;
-  //keybaord key range
-  if (key > Input::MIN_KEYBOARD_VALUE &&  key <= Input::MAX_KEYBOARD_VALUE)
-  {
-    //m_pCurrKeyboardState["123"] = GetKeyState(key);
-    //if (    && s)
-    //{
-    //  s = false;
-    //  return true;
-    //}
-    //if (!(m_pCurrKeyboardState[GetKeyState(key)] & 0xF000) && !s)
-    //{
-    //  s = true;
-    //}
-  }
-  return false;
+  return GetKeyState(key) & 0x01;
 }
 
-bool Input::IsKeyboardKeyToggled(char key, bool previousFrame) const
+inline bool Input::IsMouseKeyDown(char button, bool previousFrame) 
 {
-  //keybaord key range
-   //return GetKeyState(key) & 0x8000;
-  return false;
-}
-
-bool Input::IsMouseKeyDown(char button, bool previousFrame) const
-{
-  //mouse key range
-	if (button >= Input::MIN_MOUSE_BUTTON_VALUE && 
-      button <= Input::MAX_MOUSE_BUTTON_VALUE)
+	SHORT state = GetKeyState(button);
+	if (m_pCurrKeyboardState[button] && (state & 0xF0))
 	{
-    return true;
+		m_pCurrKeyboardState[button] = false;
+		return true;
+	}
+	else if (!m_pCurrKeyboardState[button] && !(state & 0xF0))
+	{
+		m_pCurrKeyboardState[button] = true;
 	}
 	return false;
 }

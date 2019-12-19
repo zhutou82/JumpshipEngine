@@ -14,17 +14,18 @@ public:
   static const int MIN_MOUSE_BUTTON_VALUE = 0x00;
   static const int MAX_MOUSE_BUTTON_VALUE = 0x06;
 
-	bool IsKeyboardKeyDown(char key, bool previousFrame = false) const;
-  bool IsKeyboardKeyPressed(char key, bool previousFrame = false) const;
-  bool IsKeyboardKeyToggled(char key, bool previousFrame = false) const;
+	inline bool IsKeyboardKeyDown(char key, bool previousFrame = false) const;
+  inline bool IsKeyboardKeyPressed(char key, bool previousFrame = false);
+  inline bool IsKeyboardKeyToggled(char key, bool previousFrame = false) const;
 
-  bool IsMouseKeyDown(char button, bool previousFrame = false) const;
-  bool IsKeyboardKeyDown_unsafe(char key, bool previousFrame = false) const;
+  bool IsMouseKeyDown(char button, bool previousFrame = false);
+  //bool IsKeyboardKeyDown_unsafe(char key, bool previousFrame = false) const;
 
 private:
-	Input() {}
+	Input();
 
-  std::map<std::string, SHORT> m_pCurrKeyboardState;
+  //std::map<std::string, SHORT> m_pCurrKeyboardState;
+  bool m_pCurrKeyboardState[NUMBER_OF_KEYBOARDKEYS];
         //m_pOldKeyboardState[NUMBER_OF_KEYBOARDKEYS],
         //m_pKeyboardState0[NUMBER_OF_KEYBOARDKEYS],
         //m_pKeyboardState1[NUMBER_OF_KEYBOARDKEYS];
