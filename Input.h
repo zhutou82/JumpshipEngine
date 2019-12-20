@@ -8,16 +8,15 @@ class Input : Singleton<Input>
 {
 public:
 	friend class Singleton<Input>;
-  static const int NUMBER_OF_KEYBOARDKEYS = 256;
-  static const int MIN_KEYBOARD_VALUE = 0x07;
-  static const int MAX_KEYBOARD_VALUE = 0xFE;
-  static const int MIN_MOUSE_BUTTON_VALUE = 0x00;
-  static const int MAX_MOUSE_BUTTON_VALUE = 0x06;
+  constexpr static const int NUMBER_OF_KEYBOARDKEYS = 256;
+  constexpr static const int MIN_KEYBOARD_VALUE = 0x07;
+  constexpr static const int MAX_KEYBOARD_VALUE = 0xFE;
+  constexpr static const int MIN_MOUSE_BUTTON_VALUE = 0x00;
+  constexpr static const int MAX_MOUSE_BUTTON_VALUE = 0x06;
 
-	inline bool IsKeyboardKeyDown(char key, bool previousFrame = false) const;
-  inline bool IsKeyboardKeyPressed(char key, bool previousFrame = false);
-  inline bool IsKeyboardKeyToggled(char key, bool previousFrame = false) const;
-
+	bool IsKeyboardKeyDown(char key, bool previousFrame = false) const;
+  bool IsKeyboardKeyPressed(char key, bool previousFrame = false);
+  bool IsKeyboardKeyToggled(char key, bool previousFrame = false) const;
   bool IsMouseKeyDown(char button, bool previousFrame = false);
   //bool IsKeyboardKeyDown_unsafe(char key, bool previousFrame = false) const;
 

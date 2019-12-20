@@ -1,24 +1,41 @@
 #include "JumpshipEngine.h"
 #include "Input.h"
 
-void JumpshipEngine::Initialize()
+JumpshipEngine::JumpshipEngine()
+: 
+m_RecourseFolderPath("Resource/"),
+m_XMLFolderPath (m_RecourseFolderPath + "XML/"),
+m_EngineConfigXMLFile (m_XMLFolderPath + "EngineConfig.xml")
 {
-	EASY_FUNCTION(GetProfiler.GetColor(FUNCTION_COLOR));
-	LogDebug("Initialize");
-	m_XMLFolderPath = m_RecourseFolderPath + m_XMLFolderPath;
-
-	LogDebug("Serializering data");
-	InitEngineConfig();
+	m_EngineConfigFolderVec.reserve(EngineFolderConfig_Index::EngineFolderConfig_Index_MAX_SIZE);
+  m_EngineConfigFileNameVec.reserve(EngineFileConfig_Index::EngineFileConfig_Index_MAX_SIZE);
 }
 
-void JumpshipEngine::InitEngineConfig()
+
+void JumpshipEngine::Initialize()
 {
+  EASY_FUNCTION(GetProfiler.GetColor(FUNCTION_COLOR));
+	LogDebug("Initialize");
+	LogDebug("Serializering data");
+	LoadEnginePathConfig();
+	GetProfiler.Init(m_EngineConfigFolderVec[EngineFolderConfig_Index::PROFILER_FOLDERER],
+                   m_EngineConfigFileNameVec[EngineFileConfig_Index::PROFILER_FILENAME]);
+	
+}
+
+void JumpshipEngine::LoadEnginePathConfig()
+{
+  EASY_FUNCTION(GetProfiler.GetColor(FUNCTION_COLOR));
+	//Serializering Engine Config
 	LogDebug("Serializering Engine Config");
-	tinyxml2::XMLDocument doc;
-	doc.LoadFile(std::string(m_XMLFolderPath + m_EngineConfigXMLFileName).c_str());
-	tinyxml2::XMLElement* folderPathChildElement = doc.FirstChildElement("FolderPath");
-	m_ProfileOutputFolderPath = folderPathChildElement->FirstChildElement()->GetText();
-	LogDebug(m_ProfileOutputFolderPath.c_str());
+	GetSerializer.Serialize(m_EngineConfigXMLFile,
+													"FolderPath", 
+													m_EngineConfigFolderVec);
+  GetSerializer.Serialize(m_EngineConfigXMLFile,
+                          "FileName",
+                          m_EngineConfigFileNameVec);
+
+	PrintCont(m_EngineConfigFolderVec);
 }
 void JumpshipEngine::Load()
 {
@@ -61,3 +78,4 @@ void JumpshipEngine::Release()
 	EASY_FUNCTION(GetProfiler.GetColor(FUNCTION_COLOR));
 	LogDebug("Release");
 }
+

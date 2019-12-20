@@ -19,16 +19,17 @@
 //boost library
 
 //Tiny xml
-#include "tinyxml2.h"
 
 /*4end including all external libraries*/
 
 /*start including all internal common libraries*/
+#include "GlobalVariables.h"
 #include "Logger.h"
 #include "Input.h"
 #include "Profiler.h"
-#include "GlobalVariables.h"
+#include "Serializer.h"
 /*end including all internal common libraries*/
+
 
 
 

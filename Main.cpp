@@ -5,9 +5,8 @@
 
 int main()
 {
-	LogDebug("Set-up profiler");
-	GetProfiler.Init();
-
+  LogDebug("Set-up profiler");
+  EASY_PROFILER_ENABLE
 	//EASY_FUNCTION(profiler::colors::Magenta);
 	EASY_BLOCK("Whole Engine Run time"); 
 	GetEngine.Initialize();
