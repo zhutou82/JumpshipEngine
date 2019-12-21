@@ -4,3 +4,12 @@
 <Profiler>ProfilerOutput/</Profiler>
 <Image>Image/</Image>
 </FolderPath>
+
+<FileName>
+<Profiler>version1</Profiler>
+</FileName>
+
+<WindowConfig>
+<WindowName>JSWindow</WindowName>
+<WindowResolution>800,600</WindowResolution>
+</WindowConfig>
