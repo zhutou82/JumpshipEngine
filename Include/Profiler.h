@@ -1,7 +1,6 @@
 #pragma once
 #include "Common/CommonHeader.h"
 #include "Common/SingletonBaseClass.h"
-#include <math.h>
 
 enum ProfilerBlockColor
 {

@@ -1,4 +1,3 @@
-#include "Common/CommonHeader.h"
 #include "Input.h"
 
 Input::Input()
@@ -8,7 +7,7 @@ Input::Input()
 
 bool Input::IsKeyboardKeyDown(int8_t key, bool previousFrame) const
 {
-  return GetKeyState(key) & HIGH_ORDER_BIT;
+  return GetKeyState(key) & HIGH_ORDER_BIT; 
   
 }
 

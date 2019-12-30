@@ -1,61 +1,61 @@
 #pragma once
-#include <math.h>
-#include "Common/GlobalVariables.h"
-
-template <typename T>
-class Vec2
-{
+#include "Common/CommonMath.h"
+class Vec2f
+{ 
 public:
-  Vec2(T x = T(), T y = T()) : m_X(x), m_Y(y) {}
-  Vec2(const Vec2& rhs) { *this = rhs; }
-  ~Vec2(){}
-  Vec2& operator+=(const Vec2& rhs);
-  Vec2& operator-=(const Vec2& rhs);
-  friend Vec2 operator+(Vec2 lhs, const Vec2& rhs) {
-    lhs += rhs;
-    return lhs;
-  }
-  friend Vec2 operator-(Vec2 lhs, const Vec2& rhs) {
-    lhs -= rhs;
-    return lhs;
-  }
-  friend std::ostream& operator<<(std::ostream& os, const Vec2& lhs)
-  {
-    os << lhs.m_X << ", " << lhs.m_Y;
-    return os;
-  }
-  bool operator==(const Vec2& rhs) { return m_X == rhs.m_X && m_Y == rhs.m_Y; }
+  //constructor
+  Vec2f(float x = 0.f, float y = 0.f);
+  Vec2f(const Vec2f& rhs) { *this = rhs; }
+  //operator overloading
+  const Vec2f& operator+=(const Vec2f& rhs);
+  const Vec2f  operator-=(const Vec2f& rhs);
+  const Vec2f& operator*=(const Vec2f& rhs);
+  const Vec2f& operator*=(float rhs);
+  const Vec2f& operator=(const Vec2f& rhs);
+  const Vec2f& operator/=(const Vec2f& rhs);
+  const Vec2f& operator/=(float rhs);
+  /*
+  An ordered comparison checks if neither operand is NaN.
+  Conversely, an unordered comparison checks if either operand is a NaN.
 
-   
-  const Vec2& operator=(const Vec2& rhs);
+  Signaling (S) vs non-signaling (Q for quiet) will
+  determine whether an exception is raised if an operand contains a NaN.
+  */
+  //bool         operator==(const Vec2f& rhs) const { return  _mm_movemask_ps(_mm_cmp_ps(m_XYMM, rhs.m_XYMM, _CMP_EQ_OQ)) == 0x0F; }
+  float        Dot(const Vec2f& rhs) const;
+  const float* GetValueInPtr() const {return m_XY; }
+  void         SetValue(int index, float v) { m_XY[index] = v; }
+  float        Magnitude();
+  const Vec2f& NormalizeThis();
+  Vec2f        Normalize() const;
+  
+  friend bool operator==(const Vec2f& lhs, const Vec2f& rhs) { return _mm_movemask_ps(_mm_cmp_ps(lhs.m_XYMM, rhs.m_XYMM, _CMP_EQ_OQ)) == 0x0F; }
+  friend std::ostream& operator<<(std::ostream& os, const Vec2f& rhs) { os << "(" << rhs.m_XY[0] << ", " << rhs.m_XY[1] << ")"; return os;}
 private:
-
-  T m_X;
-  T m_Y;
-
+  union { __m128 m_XYMM; float m_XY[4]; };
+};
+class Vec2i
+{
+  public:
+  //operator overloading
+  const Vec2i& operator+=(const Vec2i& rhs) { m_XY[0] += rhs.m_XY[0]; m_XY[1] += rhs.m_XY[1]; }
+  const Vec2i& operator-=(const Vec2i& rhs) { m_XY[0] -= rhs.m_XY[0]; m_XY[1] -= rhs.m_XY[1]; }
+  const Vec2i& operator*=(const Vec2i& rhs) { m_XY[0] *= rhs.m_XY[0]; m_XY[1] *= rhs.m_XY[1]; }
+  const Vec2i& operator=(const Vec2i& rhs)  { m_XY[0] = rhs.m_XY[0]; m_XY[1] = rhs.m_XY[1]; }
+  bool operator==(const Vec2i& rhs)         { return m_XY[0] == rhs.m_XY[0] && m_XY[1] == rhs.m_XY[1]; }
+  int Dot(const Vec2i& rhs)                 { return m_XY[0] * rhs.m_XY[0] + m_XY[1] * rhs.m_XY[1]; }
+  friend std::ostream& operator<<(std::ostream& os, const Vec2i& rhs){ os << "(" << rhs.m_XY[0] << ", " << rhs.m_XY[1] << ")"; return os;}
+  private:
+  int m_XY[2];
 };
 
-template<typename T>
-inline Vec2<T> & Vec2<T>::operator+=(const Vec2<T>& rhs)
-{
-  // TODO: insert return statement here
-  m_X += rhs.m_X;
-  m_Y += rhs.m_Y;
-  return *this;
-}
+static const Vec2f operator+(Vec2f lhs, const Vec2f& rhs) { return lhs += rhs; }
+static const Vec2f operator-(Vec2f lhs, const Vec2f& rhs) { return lhs -= rhs; }
+static const Vec2f operator*(Vec2f lhs, const Vec2f& rhs) { return lhs *= rhs; }
+//static bool operator == (const Vec2f& lhs, const Vec2f& rhs) {return lhs.operator==(rhs); }
 
-template <typename T>
-inline Vec2<T>& Vec2<T>::operator-=(const Vec2<T>& rhs)
+namespace Vec2
 {
-  m_X -= rhs.m_X;
-  m_Y -= rhs.m_Y;
-  return *this;
-}
-
-template <typename T>
-inline const Vec2<T>& Vec2<T>::operator=(const Vec2<T>& rhs)
-{
-  m_X = rhs.m_X;
-  m_Y = rhs.m_Y;
-  return *this;
+  static float Dot(const Vec2f& lhs, const Vec2f& rhs) { return lhs.Dot(rhs); }
+  static Vec2f Normalize(const Vec2f& rhs) { return rhs.Normalize(); }
 }

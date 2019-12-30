@@ -13,8 +13,8 @@ class Graphics : public Singleton<Graphics>
 
   const Graphics& operator=(const Graphics&) = delete;
   Graphics(const Graphics&) = delete;
-  void Init(const Vec2<int>& windowResolution, const std::string& windowName);
-  
+  //void Init(const Vec2f& windowResolution, const std::string& windowName);
+   
   private:
   Graphics() {}
   

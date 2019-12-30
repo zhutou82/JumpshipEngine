@@ -1,6 +1,6 @@
 #pragma once
 #include "Common/CommonHeader.h"
-#include "SingletonBaseClass.h"
+#include "Common/SingletonBaseClass.h"
 
 
 #define GetInput Singleton<Input>::GetInstance()

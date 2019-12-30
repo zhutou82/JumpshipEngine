@@ -1,9 +1,18 @@
 #pragma once
-#include "Common/CommonHeader.h"
 namespace GLOBAL
 {
-	 const std::string SLASH = "/";
-   const std::string NEW_LINE = "\n";
+	 constexpr const char* SLASH = "/";
+   constexpr const char* NEW_LINE = "\n";
+   constexpr const char* BRACKET_O = "(";
+   constexpr const char* BRACKET_C = ")";
+   constexpr const char* COMMA = ", ";
+   constexpr const char* COLON = ": ";
+   constexpr const char* SQUARE_BRACKET_O = "[";
+   constexpr const char* SQUARE_BRACKET_C = "]";
+   constexpr const char* JSTRUE = "True";
+   constexpr const char* JSFALSE = "False";
+   constexpr const char* JSPASS = "Pass!";
+   constexpr const char* JSFAIL = "Failed!";
 }
 
 
