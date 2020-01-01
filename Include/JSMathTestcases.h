@@ -3,7 +3,7 @@
 #include <vector>
 #include "Math/JSMath.h"
 
-namespace JSMathTestCase
+namespace JSMathTestCaseMacroMethod
 {
   void TestJSVec2Class();
   void TestJSVec3Class();
@@ -12,6 +12,11 @@ namespace JSMathTestCase
   void TestJSMat3Class();
 }
 
+namespace JSMathTestCaseTemplateMethod
+{
+  void TestJSVec4Class();
+  void TestJSMat4Class();
+}
 
 //#include <iostream>
 //#include <vector>

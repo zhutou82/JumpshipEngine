@@ -5,6 +5,9 @@
 class Mat3f
 {
   public:
+  constexpr static  const int MAT3_ROW = 3;
+  constexpr static  const int MAT3_COL = 3;
+
   Mat3f(float x1 = 0.f, float y1 = 0.f, float z1 = 0.f, 
         float x2 = 0.f, float y2 = 0.f, float z2 = 0.f,
         float x3 = 0.f, float y3 = 0.f, float z3 = 0.f )
@@ -13,6 +16,8 @@ class Mat3f
          x2, y2, z2, 0.f,
          x3, y3, z3, 0.f,
          0.f, 0.f, 0.f, 0.f} {}
+
+
   Mat3f(const Mat3f& rhs) {*this = rhs;} 
   const Mat3f& operator=(const Mat3f& rhs);
   bool         operator==(const Mat3f& rhs) {return _mm256_movemask_ps(_mm256_cmp_ps(m_XYZMM[0], rhs.m_XYZMM[0], _CMP_EQ_OQ)) == 0xFF &&
@@ -24,6 +29,7 @@ class Mat3f
   Vec3f        operator*=(const Vec3f& rhs);
   const Mat3f& operator/=(const Mat3f& rhs);
   const Mat3f& operator/=(float rhs);
+  const Mat3f& TransposeThis();
   friend std::ostream& operator<<(std::ostream& os, const Mat3f& rhs)
   {
     os << GLOBAL::SQUARE_BRACKET_O << rhs.m_XYZMat[0][0] << GLOBAL::COMMA << rhs.m_XYZMat[0][1] << GLOBAL::COMMA << rhs.m_XYZMat[0][2] << GLOBAL::SQUARE_BRACKET_C << GLOBAL::NEW_LINE
@@ -33,7 +39,6 @@ class Mat3f
   }
 
   private:
-  
   union
   {
     __m256 m_XYZMM[2];
@@ -42,3 +47,16 @@ class Mat3f
   };
 
 };
+
+static Mat3f operator+(Mat3f lhs, const Mat3f& rhs) { return lhs += rhs; }
+static Mat3f operator-(Mat3f lhs, const Mat3f& rhs) { return lhs -= rhs; }
+static Mat3f operator*(Mat3f lhs, const Mat3f& rhs) { return lhs *= rhs; }
+static Mat3f operator*(Mat3f lhs, float rhs) { return lhs *= rhs; }
+static Vec3f operator*(Mat3f lhs, const Vec3f& rhs) { return lhs *= rhs; }
+static Mat3f operator/(Mat3f lhs, const Mat3f& rhs) { return lhs /= rhs; }
+static Mat3f operator/(Mat3f lhs, float rhs) { return lhs /= rhs; }
+
+namespace Mat3
+{
+  static Mat3f Transpose(Mat3f lhs) { return lhs.TransposeThis(); }
+}

@@ -48,12 +48,6 @@ float Vec3f::Dot(const Vec3f & rhs) const
   return _mm_hadd_ps(result, result).m128_f32[0];
 }
 
-Vec3f Vec3f::Normalize() const
-{
-  Vec3f result = *this;
-  return result.NormalizeThis();
-}
-
 const Vec3f & Vec3f::NormalizeThis()
 {
   float mag = Magnitude();

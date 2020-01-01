@@ -13,6 +13,8 @@ namespace GLOBAL
    constexpr const char* JSFALSE = "False";
    constexpr const char* JSPASS = "Pass!";
    constexpr const char* JSFAIL = "Failed!";
+
+   constexpr int ZERO = 0;
 }
 
 

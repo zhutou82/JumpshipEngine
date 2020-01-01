@@ -1,7 +1,6 @@
 #include "JumpshipEngine.h"
 #include "Input.h"
 #include "Graphics.h"
-#include <zmmintrin.h>
 #include "JSMathTestcases.h"
 
 JumpshipEngine::JumpshipEngine()
@@ -17,6 +16,7 @@ m_EngineConfigXMLFile (m_XMLFolderPath + "EngineConfig.xml")
 
 void JumpshipEngine::Initialize()
 {
+  std::cout << 123 << std::endl;
   EASY_FUNCTION(GetProfilerBLKColor(FUNCTION_COLOR));
 	LogDebug("Initialize");
 	LogDebug("Serializering data");
@@ -26,10 +26,12 @@ void JumpshipEngine::Initialize()
 
 
   //testing math library
-  JSMathTestCase::TestJSVec2Class();
-  JSMathTestCase::TestJSVec3Class();
-  JSMathTestCase::TestJSMat2Class();
-  JSMathTestCase::TestJSMat3Class();
+  //JSMathTestCaseMacroMethod::TestJSVec2Class();
+  //JSMathTestCaseMacroMethod::TestJSVec3Class();
+  //JSMathTestCaseMacroMethod::TestJSMat2Class();
+  //JSMathTestCaseMacroMethod::TestJSMat3Class();
+  //JSMathTestCaseTemplateMethod::TestJSVec4Class();
+  JSMathTestCaseTemplateMethod::TestJSMat4Class();
 #define TEST_3
 #ifdef TEST_2                
 
@@ -53,23 +55,26 @@ void JumpshipEngine::Initialize()
 #endif
 
 #ifdef TEST_3
-  Vec3f v(1,2,3);
-  Vec3f vv(1,2,3);
-  std::cout << (v == vv ? "t" : "f") << std::endl;
-  //std::cout << (v *= vv)<< std::endl;
+  //Vec3f v(1,2,3);
+  //Vec3f vv(1,2,3);
+  //std::cout << (v == vv ? "t" : "f") << std::endl;
+  ////std::cout << (v *= vv)<< std::endl;
 
-  Mat3f m(1,2,3,
-          4,5,6,
-          7,8,9);
-  Mat3f m1(1,2,3,
-           4,5,6,
-           7,8,9);  
-  std::cout << (m *= m1) << std::endl;
+  //Mat3f m(1,2,3,
+  //        4,5,6,
+  //        7,8,9);
+  //Mat3f m1(1,2,3,
+  //         4,5,6,
+  //         7,8,9);  
+  //std::cout << (m *= m1) << std::endl;
+  //std::cout << 123 << std::endl;
 
   // = _mm512_setzero_ps();
   //int i =0;
 
   //std::cout << m1 << std::endl;
+
+
 #endif
   //
   //std::cout << (v += vv) << GLOBAL::NEW_LINE;

@@ -3,8 +3,9 @@
 #include "Math/Vec2.h"
 #include "Math/Mat2.h"
 #include "Math/Vec3.h"
+#include "Math/Vec4.h"
 #include "Math/Mat3.h"
-
+#include "Math/Mat4.h"
 
 //static const Vec2i operator+(Vec2i lhs, const Vec2i& rhs) { return lhs += rhs; }
 //static const Vec2i operator-(Vec2i lhs, const Vec2i& rhs) { return lhs -= rhs; }

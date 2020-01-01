@@ -4,7 +4,8 @@ class Vec2f
 { 
 public:
   //constructor
-  Vec2f(float x = 0.f, float y = 0.f);
+  Vec2f(float x, float y) : m_XY { x, y } {}
+  Vec2f(float x = 0.f) : m_XY {x, x} {}
   Vec2f(const Vec2f& rhs) { *this = rhs; }
   //operator overloading
   const Vec2f& operator+=(const Vec2f& rhs);
@@ -25,11 +26,10 @@ public:
   float        Dot(const Vec2f& rhs) const;
   const float* GetValueInPtr() const {return m_XY; }
   void         SetValue(int index, float v) { m_XY[index] = v; }
-  float        Magnitude();
+  float        Magnitude() const { return sqrt(Dot(*this)); }
   const Vec2f& NormalizeThis();
-  Vec2f        Normalize() const;
   
-  friend bool operator==(const Vec2f& lhs, const Vec2f& rhs) { return _mm_movemask_ps(_mm_cmp_ps(lhs.m_XYMM, rhs.m_XYMM, _CMP_EQ_OQ)) == 0x0F; }
+  friend bool operator==(const Vec2f& lhs, const Vec2f& rhs) { return _mm_movemask_ps(_mm_cmpeq_ps(lhs.m_XYMM, rhs.m_XYMM)) == 0x0F; }
   friend std::ostream& operator<<(std::ostream& os, const Vec2f& rhs) { os << "(" << rhs.m_XY[0] << ", " << rhs.m_XY[1] << ")"; return os;}
 private:
   union { __m128 m_XYMM; float m_XY[4]; };
@@ -49,13 +49,15 @@ class Vec2i
   int m_XY[2];
 };
 
-static const Vec2f operator+(Vec2f lhs, const Vec2f& rhs) { return lhs += rhs; }
-static const Vec2f operator-(Vec2f lhs, const Vec2f& rhs) { return lhs -= rhs; }
-static const Vec2f operator*(Vec2f lhs, const Vec2f& rhs) { return lhs *= rhs; }
-//static bool operator == (const Vec2f& lhs, const Vec2f& rhs) {return lhs.operator==(rhs); }
+static Vec2f operator+(Vec2f lhs, const Vec2f& rhs) { return lhs += rhs; }
+static Vec2f operator-(Vec2f lhs, const Vec2f& rhs) { return lhs -= rhs; }
+static Vec2f operator*(Vec2f lhs, const Vec2f& rhs) { return lhs *= rhs; }
+static Vec2f operator*(Vec2f lhs, float rhs) { return lhs *= rhs; }
+static Vec2f operator/(Vec2f lhs, const Vec2f& rhs) { return lhs /= rhs; }
+static Vec2f operator/(Vec2f lhs, float rhs) { return lhs /= rhs; }
 
 namespace Vec2
 {
   static float Dot(const Vec2f& lhs, const Vec2f& rhs) { return lhs.Dot(rhs); }
-  static Vec2f Normalize(const Vec2f& rhs) { return rhs.Normalize(); }
+  static Vec2f Normalize(Vec2f rhs) { return rhs.NormalizeThis(); }
 }

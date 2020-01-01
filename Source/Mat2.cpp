@@ -63,3 +63,16 @@ Vec2f Mat2f::GetColumn(int index) const
   for (int i = 0; i < MAT2_ROW; ++i) v.SetValue(i, m_XYMat[i][index]);
   return v;
 }
+
+float Mat2f::GetValue(int xIndex, int yIndex) const
+{
+  assert(xIndex >= GLOBAL::ZERO && xIndex <= MAT2_ROW &&
+         yIndex >= GLOBAL::ZERO && yIndex <= MAT2_ROW);
+  return m_XYMat[xIndex][yIndex]; 
+}
+
+const Mat2f& Mat2f::TransposeThis()
+{
+  // TODO: insert return statement here
+  return *this;
+}
