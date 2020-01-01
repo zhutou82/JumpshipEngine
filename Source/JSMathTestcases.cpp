@@ -74,7 +74,7 @@ namespace JSMathTestCaseMacroMethod
   void TestJSVec2Class()
   {
     PrintFnName
-    Vec2f v0(0, 0), v1(1, 1), v2(2, 2);
+    Vec2f v0(0), v1(1), v2(2);
     PrintTestCase(TestOperatorAssignment(v0, v1, v1)) 
     PrintTestCase(TestOperatorPlus(v1, v1, v2));
     PrintTestCase(TestOperatorMinus(v2, v1, v1));
@@ -87,7 +87,7 @@ namespace JSMathTestCaseMacroMethod
   void TestJSVec3Class() 
   {
     PrintFnName
-    Vec3f v0(0, 0, 0), v1(1, 1, 1), v2(2, 2, 2);
+    Vec3f v0(0), v1(1), v2(2);
     PrintTestCase(TestOperatorAssignment(v0, v1, v1))
     PrintTestCase(TestOperatorPlus(v1, v1, v2));
     PrintTestCase(TestOperatorMinus(v2, v1, v1));
@@ -100,7 +100,7 @@ namespace JSMathTestCaseMacroMethod
   void TestJSMat2Class()
   {
     PrintFnName
-    Mat2f m0(0,0,0,0), m1(1, 1, 1, 1), m2(2, 2, 2, 2);
+    Mat2f m0(0), m1(1), m2(2);
     Mat2f m3(1,2,3,4), m4(1,2,3,4), m5(7, 10, 15, 22);
     PrintTestCase(TestOperatorAssignment(m0, m1, m1));
     PrintTestCase(TestOperatorPlus(m1, m1, m2));
@@ -114,7 +114,7 @@ namespace JSMathTestCaseMacroMethod
   void TestJSMat3Class()
   {
     PrintFnName
-    Mat3f m0(0,0,0,0,0,0,0,0,0), m1(1, 1, 1, 1, 1, 1, 1, 1, 1), m2(2, 2, 2, 2, 2, 2, 2, 2, 2);
+    Mat3f m0(0), m1(1), m2(2);
     Mat3f m3(1,2,3,4,5,6,7,8,9), m4(1, 2, 3, 4, 5, 6, 7, 8, 9), m5(30, 36, 42, 66, 81, 96, 102, 126, 150);
     Vec3f v0(1,2,3), v1(14, 32,50);
     PrintTestCase(TestOperatorAssignment(m0, m1, m1));

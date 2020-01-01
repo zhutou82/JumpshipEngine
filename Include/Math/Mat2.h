@@ -9,7 +9,7 @@ class Mat2f
    constexpr static  const int MAT2_COL = 2;
 
 
-  Mat2f(float x1 = 0.f, float x2 = 0.f, float y1 = 0.f, float y2 = 0.f) 
+  Mat2f(float x1, float x2, float y1, float y2) 
   : m_XY {x1, x2, y1, y2} {}
   Mat2f(float x = 0.f) 
   : m_XY {x, x, x, x} {}
