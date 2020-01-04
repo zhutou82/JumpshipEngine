@@ -22,15 +22,25 @@ const Mat2f& Mat2f::operator*=(const Mat2f & rhs)
 {
   //Mat2f m1(7, 10, 15, 22);
   //float x1 = m_XYMat[0][0] * rhs.m_XYMat[0][0] + m_XYMat[0][1] * rhs.m_XYMat[1][0];
-  //float x2 = m_XYMat[0][0] * rhs.m_XYMat[0][1] + m_XYMat[0][1] * rhs.m_XYMat[1][1];
   //float y1 = m_XYMat[1][0] * rhs.m_XYMat[0][0] + m_XYMat[1][1] * rhs.m_XYMat[1][0];
+
+  //float x2 = m_XYMat[0][0] * rhs.m_XYMat[0][1] + m_XYMat[0][1] * rhs.m_XYMat[1][1];
   //float y2 = m_XYMat[1][0] * rhs.m_XYMat[0][1] + m_XYMat[1][1] * rhs.m_XYMat[1][1];
-  float X1y1[] = { m_XYMat[0][0], m_XYMat[0][1], m_XYMat[0][0], m_XYMat[0][1] };
-  float X2y2[] = { m_XYMat[1][0], m_XYMat[1][1], m_XYMat[1][0], m_XYMat[1][1] };
-  float rhsX1y1[] = { rhs.m_XYMat[0][0], rhs.m_XYMat[1][0], rhs.m_XYMat[0][1], rhs.m_XYMat[1][1] };
+  //float X1y1[] = { m_XYMat[0][0], m_XYMat[0][1], m_XYMat[0][0], m_XYMat[0][1] };
+  //float X2y2[] = { m_XYMat[1][0], m_XYMat[1][1], m_XYMat[1][0], m_XYMat[1][1] };
+  //float rhsX1y1[] = { rhs.m_XYMat[0][0], rhs.m_XYMat[1][0], rhs.m_XYMat[0][1], rhs.m_XYMat[1][1] };
   //float rhsX2y2[] = { rhs.m_XYMat[0][1], rhs.m_XYMat[1][1], rhs.m_XYMat[0][1], rhs.m_XYMat[1][1] };
-  _mm_store_ps(m_XY, _mm_hadd_ps(_mm_mul_ps(_mm_load_ps(X1y1), _mm_load_ps(rhsX1y1)),
-                                 _mm_mul_ps(_mm_load_ps(X2y2), _mm_load_ps(rhsX1y1))));
+  //_mm_store_ps(m_XY, _mm_hadd_ps(_mm_mul_ps(_mm_load_ps(X1y1), _mm_load_ps(rhsX1y1)),
+  //                               _mm_mul_ps(_mm_load_ps(X2y2), _mm_load_ps(rhsX1y1))));
+
+  float x1y2[] = { rhs.m_XYMat[0][0], rhs.m_XYMat[1][0], rhs.m_XYMat[0][0], rhs.m_XYMat[1][0],
+                   rhs.m_XYMat[0][1], rhs.m_XYMat[1][1], rhs.m_XYMat[0][1], rhs.m_XYMat[1][1] };
+  __m256 r = _mm256_mul_ps(_mm256_set_m128(m_XYMM, m_XYMM), _mm256_load_ps(x1y2));
+  r = _mm256_hadd_ps(r, r);
+  m_XY[0] = r.m256_f32[0];
+  m_XY[1] = r.m256_f32[4];
+  m_XY[2] = r.m256_f32[1];
+  m_XY[3] = r.m256_f32[5];
   return *this; 
 }
 const Mat2f & Mat2f::operator*=(const Vec2f & rhs)
@@ -73,6 +83,12 @@ float Mat2f::GetValue(int xIndex, int yIndex) const
 
 const Mat2f& Mat2f::TransposeThis()
 {
-  // TODO: insert return statement here
+/*
+template <typename T> void swap(T& t1, T& t2) {
+    T temp = std::move(t1);
+    t1 = std::move(t2);
+    t2 = std::move(temp); }
+*/
+  std::swap(m_XYMat[0][1], m_XYMat[1][0]);
   return *this;
 }

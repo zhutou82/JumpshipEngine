@@ -18,6 +18,12 @@ namespace JSMathTestCaseTemplateMethod
   void TestJSMat4Class();
 }
 
+namespace JSMathStreeTest
+{
+  void TestJSMat3Class();
+  void TestJSMat4Class();
+}
+
 //#include <iostream>
 //#include <vector>
 //#include <functional>

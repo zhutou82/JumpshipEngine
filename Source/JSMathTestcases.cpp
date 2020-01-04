@@ -39,6 +39,13 @@ for (const auto& elem : result) { if (!elem) {allPass = false; break;} ++testCas
 std::cout <<  (allPass ? "All Pass" : GLOBAL::JSFAIL ) <<  GLOBAL::NEW_LINE; \
 std::cout << "============================================================" << GLOBAL::NEW_LINE; \
 
+
+  template <typename T1, typename T2, typename T3>
+bool TestTranspose(const T1& in1, const T1& in2, const T2& out1, const T3& op)
+{
+  PrintFnInputInfo(in1, in2, out1)
+    return op(in1) == out1;
+}
 namespace JSMathTestCaseMacroMethod
 {
   RegisterOperatorFn(Vec2f, Vec2f, Vec2f, Assignment, =)
@@ -101,7 +108,7 @@ namespace JSMathTestCaseMacroMethod
   {
     PrintFnName
     Mat2f m0(0), m1(1), m2(2);
-    Mat2f m3(1,2,3,4), m4(1,2,3,4), m5(7, 10, 15, 22);
+    Mat2f m3(1,2,3,4), m4(1,2,3,4), m5(7, 10, 15, 22), m6(7, 15, 10, 22);
     PrintTestCase(TestOperatorAssignment(m0, m1, m1));
     PrintTestCase(TestOperatorPlus(m1, m1, m2));
     PrintTestCase(TestOperatorMinus(m2, m1, m1)); 
@@ -109,6 +116,7 @@ namespace JSMathTestCaseMacroMethod
     PrintTestCase(TestOperatorMultiply2(m3, m4, m5));
     PrintTestCase(TestOperatorDivision1(m2, 2.f, m1));
     PrintTestCase(TestOperatorDivision2(m2, m2, m1));
+    PrintTestCase((TestTranspose<Mat2f, Mat2f, Mat2f(*)(Mat2f)>(m5, m5, m6, Mat2::Transpose)));
     EndTestCase
   }
   void TestJSMat3Class()
@@ -116,6 +124,9 @@ namespace JSMathTestCaseMacroMethod
     PrintFnName
     Mat3f m0(0), m1(1), m2(2);
     Mat3f m3(1,2,3,4,5,6,7,8,9), m4(1, 2, 3, 4, 5, 6, 7, 8, 9), m5(30, 36, 42, 66, 81, 96, 102, 126, 150);
+    Mat3f m6 (30, 66, 102,
+              36, 81, 126,
+              42, 96, 150);
     Vec3f v0(1,2,3), v1(14, 32,50);
     PrintTestCase(TestOperatorAssignment(m0, m1, m1));
     PrintTestCase(TestOperatorPlus(m1, m1, m2));
@@ -125,6 +136,7 @@ namespace JSMathTestCaseMacroMethod
     PrintTestCase(TestOperatorMultiply3(m3, v0, v1));
     PrintTestCase(TestOperatorDivision1(m2, 2.f, m1));
     //PrintTestCase(TestOperatorDivision2(m2, m2, m1)); correct output but showed failed, need to fix xmm divided by 0
+    PrintTestCase((TestTranspose<Mat3f, Mat3f, Mat3f(*)(Mat3f)>(m5, m5, m6, Mat3::Transpose)));
     EndTestCase
   }
 }
@@ -226,25 +238,59 @@ for (const auto& elem : testingVec<t1, t2, t3>) \
              21,22,23,24,
              25,26,27,28,
              29,30,31,32);
-
     Mat4f m5(250,260,270,280,
              618,644,670,696,
              986,1028,1070,1112,
              1354,1412,1470,1528);
+    Mat4f m6(250, 618, 986, 1354,
+             260, 644, 1028, 1412,
+             270, 670, 1070, 1470,
+             280, 696, 1112, 1528);
     Vec4f v1 (1,2,3,4), v2(30, 70, 110, 150);
     float f1 = 13;
-    
     RegisterFn(Mat4f, Mat4f, Mat4f, m1, m1, m1, TestOperatorEqual);
     RegisterFn(Mat4f, Mat4f, Mat4f, m1, m1, m2, TestOperatorPlus);
     RegisterFn(Mat4f, Mat4f, Mat4f, m2, m1, m1, TestOperatorMinus);
     RegisterFn(Mat4f, Mat4f, Mat4f, m3, m4, m5, TestOperatorMul);
-
     PrintResult(Mat4f, Mat4f, Mat4f)
-    RegisterFn(Mat4f, Vec4f, Vec4f, m3, v1, v2, TestOperatorMul); 
 
+    RegisterFn(Mat4f, Vec4f, Vec4f, m3, v1, v2, TestOperatorMul); 
     PrintResult(Mat4f, Vec4f, Vec4f)
+ 
+    PrintTestCase((TestTranspose<Mat4f, Mat4f, Mat4f(*)(Mat4f)>(m5, m5, m6, Mat4::Transpose)));
     EndTestCase
   }
 }
+
+namespace JSMathStreeTest
+{
+#define NUM_OF_TEST 100000000
+#define TestOperator(t1, in1, in2, op) \
+t1 tmp; \
+for(int i =0; i < NUM_OF_TEST; ++i) {tmp = in1 op in2;} \
+std::cout << tmp << std::endl; \
+
+  void TestJSMat4Class()
+  {
+    Mat4f m3(1,2,3,4,
+            5,6,7,8,
+            9,10,11,12,
+            13,14,15,16);
+    Mat4f m4(17,18,19,20,
+             21,22,23,24,
+             25,26,27,28,
+             29,30,31,32);
+    //TestOperator(Mat4f, m3, m4, +)
+    //TestOperator(Mat4f, m3, m4, -)
+    TestOperator(Mat4f, m3, m4, *)
+  }
+
+  void TestJSMat3Class()
+  {
+    Mat3f m3(1, 2, 3, 4, 5, 6, 7, 8, 9), m4(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    TestOperator(Mat3f, m3, m4, *)
+  }
+}
+
 
 

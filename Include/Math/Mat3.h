@@ -8,14 +8,22 @@ class Mat3f
   constexpr static  const int MAT3_ROW = 3;
   constexpr static  const int MAT3_COL = 3;
 
-  Mat3f(float x1 = 0.f, float y1 = 0.f, float z1 = 0.f, 
-        float x2 = 0.f, float y2 = 0.f, float z2 = 0.f,
-        float x3 = 0.f, float y3 = 0.f, float z3 = 0.f )
+  Mat3f(float x1, float y1, float z1, 
+        float x2, float y2, float z2,
+        float x3, float y3, float z3 )
   :
   m_XYZ {x1, y1, z1, 0.f,
          x2, y2, z2, 0.f,
          x3, y3, z3, 0.f,
          0.f, 0.f, 0.f, 0.f} {}
+  
+  Mat3f(float x1 = 0.f)
+  :
+  m_XYZ {x1, x1, x1, x1,
+         x1, x1, x1, x1,
+         x1, x1, x1, x1,
+         x1, x1, x1, x1
+        } {}
 
 
   Mat3f(const Mat3f& rhs) {*this = rhs;} 
@@ -30,6 +38,9 @@ class Mat3f
   const Mat3f& operator/=(const Mat3f& rhs);
   const Mat3f& operator/=(float rhs);
   const Mat3f& TransposeThis();
+  float GetValue(int row, int col) const;
+  
+
   friend std::ostream& operator<<(std::ostream& os, const Mat3f& rhs)
   {
     os << GLOBAL::SQUARE_BRACKET_O << rhs.m_XYZMat[0][0] << GLOBAL::COMMA << rhs.m_XYZMat[0][1] << GLOBAL::COMMA << rhs.m_XYZMat[0][2] << GLOBAL::SQUARE_BRACKET_C << GLOBAL::NEW_LINE

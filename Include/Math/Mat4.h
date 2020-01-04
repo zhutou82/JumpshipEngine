@@ -4,6 +4,9 @@
 class Mat4f
 {
   public:
+  constexpr static int MAT4_ROW = 4;
+  constexpr static int MAT4_COL = 4;
+
   Mat4f(float x1, float x2, float x3, float x4,
         float y1, float y2, float y3, float y4,
         float z1, float z2, float z3, float z4, 
@@ -31,6 +34,7 @@ class Mat4f
   const Mat4f& operator/=(float rhs);
   const Mat4f& operator/=(const Vec4f& rhs);
   const Mat4f& TransposeThis();
+  float GetValue(int row, int col) const;
 
   friend bool operator==(const Mat4f& lhs, const Mat4f& rhs) {  return _mm256_movemask_ps(_mm256_cmp_ps(lhs.m_XYZWMM[0], rhs.m_XYZWMM[0], _CMP_EQ_OQ)) == 0xFF && 
                                                                        _mm256_movemask_ps(_mm256_cmp_ps(lhs.m_XYZWMM[1], rhs.m_XYZWMM[1], _CMP_EQ_OQ)) == 0xFF; }

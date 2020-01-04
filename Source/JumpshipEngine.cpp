@@ -29,9 +29,18 @@ void JumpshipEngine::Initialize()
   //JSMathTestCaseMacroMethod::TestJSVec2Class();
   //JSMathTestCaseMacroMethod::TestJSVec3Class();
   //JSMathTestCaseMacroMethod::TestJSMat2Class();
-  //JSMathTestCaseMacroMethod::TestJSMat3Class();
+  JSMathTestCaseMacroMethod::TestJSMat3Class();
   //JSMathTestCaseTemplateMethod::TestJSVec4Class();
   JSMathTestCaseTemplateMethod::TestJSMat4Class();
+
+  //EASY_BLOCK("TestJSMat4Class");
+  //JSMathStreeTest::TestJSMat4Class();
+  //EASY_END_BLOCK
+
+ /* EASY_BLOCK("TestJSMat33Class");
+  JSMathStreeTest::TestJSMat3Class();
+  EASY_END_BLOCK*/
+
 #define TEST_3
 #ifdef TEST_2                
 

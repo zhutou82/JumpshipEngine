@@ -20,7 +20,7 @@ class Vec4f
   const Vec4f& NormalizeThis();
   float Dot(const Vec4f& rhs) const;
   float Magnitude() const { return std::sqrt(Dot(*this)); }
-  
+  const __m128 GetMM() const {return m_XYZWMM;}
   friend bool operator==(const Vec4f& lhs, const Vec4f& rhs) { return _mm_movemask_ps(_mm_cmpeq_ps(lhs.m_XYZWMM, rhs.m_XYZWMM)) == 0x0F; }
 
   friend std::ostream& operator<<(std::ostream& os, const Vec4f& rhs)

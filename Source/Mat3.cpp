@@ -40,19 +40,21 @@ const Mat3f & Mat3f::operator*=(const Mat3f & rhs)
   //w3,
   //0.f, 0.f, 0.f, 0.f
   //};
-  float tmp1[4] = { rhs.m_XYZMat[0][0], rhs.m_XYZMat[1][0], rhs.m_XYZMat[2][0], 0.f };
-  float tmp2[4] = { rhs.m_XYZMat[0][1], rhs.m_XYZMat[1][1], rhs.m_XYZMat[2][1], 0.f };
-  float tmp3[4] = { rhs.m_XYZMat[0][2], rhs.m_XYZMat[1][2], rhs.m_XYZMat[2][2], 0.f };
-  __m128 rhsXYZ1 = _mm_load_ps(tmp1);
-  __m128 rhsXYZ2 =  _mm_load_ps(tmp2);
-  __m128 rhsXYZ3 =  _mm_load_ps(tmp3);
-  __m256 rhsXYZ8 = _mm256_set_m128(rhsXYZ1, rhsXYZ1);
-  __m256 rhsXYZ18 = _mm256_set_m128(rhsXYZ2, rhsXYZ2);
-  __m256 rhsXYZ28 = _mm256_set_m128(rhsXYZ3, rhsXYZ3);
-  m_XYZMM[0] = _mm256_hadd_ps(_mm256_hadd_ps(_mm256_mul_ps(m_XYZMM[0], rhsXYZ8), _mm256_mul_ps(m_XYZMM[0], rhsXYZ18)),
-                              _mm256_hadd_ps(_mm256_mul_ps(m_XYZMM[0], rhsXYZ28), _mm256_setzero_ps()));
-  m_XYZMM[1] = _mm256_hadd_ps(_mm256_hadd_ps(_mm256_mul_ps(m_XYZMM[1], rhsXYZ8), _mm256_mul_ps(m_XYZMM[1], rhsXYZ18)),
-                              _mm256_hadd_ps(_mm256_mul_ps(m_XYZMM[1], rhsXYZ28), _mm256_setzero_ps()));
+  float x1x3[] = { rhs.m_XYZMat[0][0], rhs.m_XYZMat[1][0], rhs.m_XYZMat[2][0], 0.f,
+                   rhs.m_XYZMat[0][0], rhs.m_XYZMat[1][0], rhs.m_XYZMat[2][0], 0.f };
+  float y1y3[] = { rhs.m_XYZMat[0][1], rhs.m_XYZMat[1][1], rhs.m_XYZMat[2][1], 0.f,
+                   rhs.m_XYZMat[0][1], rhs.m_XYZMat[1][1], rhs.m_XYZMat[2][1], 0.f };
+  float z1z3[] = { rhs.m_XYZMat[0][2], rhs.m_XYZMat[1][2], rhs.m_XYZMat[2][2], 0.f,  
+                   rhs.m_XYZMat[0][2], rhs.m_XYZMat[1][2], rhs.m_XYZMat[2][2], 0.f };
+
+  //__m256 rhsXYZ8 = _mm256_load_ps(tmp1);
+  //__m256 rhsXYZ18 = _mm256_load_ps(tmp2);
+  //__m256 rhsXYZ28 = _mm256_load_ps(tmp3);
+
+  m_XYZMM[0] = _mm256_hadd_ps(_mm256_hadd_ps(_mm256_mul_ps(m_XYZMM[0], _mm256_load_ps(x1x3)), _mm256_mul_ps(m_XYZMM[0], _mm256_load_ps(y1y3))),
+                              _mm256_hadd_ps(_mm256_mul_ps(m_XYZMM[0], _mm256_load_ps(z1z3)), _mm256_setzero_ps()));
+  m_XYZMM[1] = _mm256_hadd_ps(_mm256_hadd_ps(_mm256_mul_ps(m_XYZMM[1], _mm256_load_ps(x1x3)), _mm256_mul_ps(m_XYZMM[1], _mm256_load_ps(y1y3))),
+                              _mm256_hadd_ps(_mm256_mul_ps(m_XYZMM[1], _mm256_load_ps(z1z3)), _mm256_setzero_ps()));
 
   return *this;
 }
@@ -75,8 +77,6 @@ Vec3f Mat3f::operator*=(const Vec3f& rhs)
                r1.m256_f32[1]);
 }
 
-
-
 const Mat3f & Mat3f::operator/=(const Mat3f & rhs)
 {
   m_XYZMM[0] = _mm256_div_ps(m_XYZMM[0], rhs.m_XYZMM[0]);
@@ -90,4 +90,25 @@ const Mat3f & Mat3f::operator/=(float rhs)
   m_XYZMM[0] = _mm256_div_ps(m_XYZMM[0], d);
   m_XYZMM[1] = _mm256_div_ps(m_XYZMM[1], d);
   return *this;
+}
+
+const Mat3f& Mat3f::TransposeThis()
+{
+  __m128 row1 = _mm_load_ps(m_XYZMat[0]);
+  __m128 row2 = _mm_load_ps(m_XYZMat[1]);
+  __m128 row3 = _mm_load_ps(m_XYZMat[2]);
+  __m128 row4 = _mm_load_ps(m_XYZMat[3]);
+  _MM_TRANSPOSE4_PS(row1, row2, row3, row4);
+  _mm_store_ps(m_XYZMat[0], row1);
+  _mm_store_ps(m_XYZMat[1], row2);
+  _mm_store_ps(m_XYZMat[2], row3);
+  _mm_store_ps(m_XYZMat[3], row4);
+  return *this;
+}
+
+float Mat3f::GetValue(int row, int col) const
+{
+  assert(row >= GLOBAL::ZERO && row <= MAT3_ROW &&
+         col >= GLOBAL::ZERO && col <= MAT3_COL);
+  return m_XYZMat[row][col];
 }
