@@ -1,6 +1,6 @@
 #pragma once
 #include "Common/CommonMath.h"
-
+#include "Math/Vec4.h"
 class Mat4f
 {
   public:
@@ -19,7 +19,21 @@ class Mat4f
           x, x, x, x,
           x, x, x, x,
           x, x, x, x } {}
+  
+  Mat4f(const Mat4f& rhs) {*this = rhs;}
+  const Mat4f& operator=(const Mat4f& rhs);
+  const Mat4f& operator+=(const Mat4f& rhs);
+  const Mat4f& operator-=(const Mat4f& rhs);
+  const Mat4f& operator*=(const Mat4f& rhs);
+  const Mat4f& operator*=(float rhs);
+  Vec4f operator*=(const Vec4f& rhs);
+  const Mat4f& operator/=(const Mat4f& rhs);
+  const Mat4f& operator/=(float rhs);
+  const Mat4f& operator/=(const Vec4f& rhs);
+  const Mat4f& TransposeThis();
 
+  friend bool operator==(const Mat4f& lhs, const Mat4f& rhs) {  return _mm256_movemask_ps(_mm256_cmp_ps(lhs.m_XYZWMM[0], rhs.m_XYZWMM[0], _CMP_EQ_OQ)) == 0xFF && 
+                                                                       _mm256_movemask_ps(_mm256_cmp_ps(lhs.m_XYZWMM[1], rhs.m_XYZWMM[1], _CMP_EQ_OQ)) == 0xFF; }
 
 
   friend std::ostream& operator<<(std::ostream& os, const Mat4f& rhs)
@@ -38,3 +52,17 @@ class Mat4f
     float m_XYZWMat[4][4];
   };
 };
+
+static Mat4f operator+(Mat4f lhs, const Mat4f& rhs) { return lhs += rhs; }
+static Mat4f operator-(Mat4f lhs, const Mat4f& rhs) { return lhs -= rhs; }
+static Mat4f operator*(Mat4f lhs, const Mat4f& rhs) { return lhs *= rhs; }
+static Mat4f operator*(Mat4f lhs, float rhs) { return lhs *= rhs; }
+static Vec4f operator*(Mat4f lhs, const Vec4f& rhs) { return lhs *= rhs; }
+static Mat4f operator/(Mat4f lhs, const Mat4f& rhs) { return lhs /= rhs; }
+static Mat4f operator/(Mat4f lhs, float rhs) { return lhs /= rhs; }
+static Mat4f operator/(Mat4f lhs, const Vec4f& rhs) { return lhs /= rhs; }
+
+namespace Mat4
+{
+  static Mat4f Transpose(Mat4f rhs) { return rhs.TransposeThis(); }
+}
