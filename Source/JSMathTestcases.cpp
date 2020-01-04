@@ -50,7 +50,7 @@ namespace JSMathTestCaseMacroMethod
   RegisterSpecialOperatorFn(Vec2f, Vec2f, float, Dot, Vec2::Dot)
   RegisterOperatorFn(Vec3f, Vec3f, Vec3f, Assignment, =)
   RegisterOperatorFn(Vec3f, Vec3f, Vec3f, Plus, +)
-  RegisterOperatorFn(Vec3f, Vec3f, Vec3f, Minus, -)
+  RegisterOperatorFn(Vec3f, Vec3f, Vec3f, Minus, -) 
   RegisterOperatorFn(Vec3f, float, Vec3f, Multiply, *)
   RegisterOperatorFn(Vec3f, Vec3f, Vec3f, Division1, /)
   RegisterOperatorFn(Vec3f, float, Vec3f, Division2, /)
@@ -163,7 +163,7 @@ namespace JSMathTestCaseTemplateMethod
   bool TestOperatorMinus(const T1& in1, const T2& in2, const T3& out1)
   {
     PrintFnInputInfo(in1, in2, out1)
-    return (in1 - in2) == out1;
+    return (in1 - in2) == out1; 
   }
   template <typename T1, typename T2, typename T3>
   bool TestOperatorMul(const T1& in1, const T2& in2, const T3& out1)
@@ -199,6 +199,7 @@ for (const auto& elem : testingVec<t1, t2, t3>) \
     Vec4f v0(0.f), v1(1.f), v2(2.f);
     RegisterFn(Vec4f, Vec4f, Vec4f, v1, v1, v1, TestOperatorEqual);
     RegisterFn(Vec4f, Vec4f, Vec4f, v1, v1, v2, TestOperatorPlus);
+    RegisterFn(Vec4f, Vec4f, Vec4f, v2, v1, v1, TestOperatorMinus);
     RegisterFn(Vec4f, Vec4f, Vec4f, v1, v2, v2, TestOperatorMul);
     RegisterFn(Vec4f, Vec4f, Vec4f, v2, v2, v1, TestOperatorDiv);
     PrintResult(Vec4f, Vec4f, Vec4f)
@@ -215,7 +216,33 @@ for (const auto& elem : testingVec<t1, t2, t3>) \
   void TestJSMat4Class()
   { 
     PrintFnName
-    PrintTestCase(TestCreatation<Mat4f>());
+    PrintTestCase(TestCreatation<Mat4f>());  
+    Mat4f m0(0), m1(1), m2(2);
+    Mat4f m3(1,2,3,4,
+             5,6,7,8,
+             9,10,11,12,
+             13,14,15,16);
+    Mat4f m4(17,18,19,20,
+             21,22,23,24,
+             25,26,27,28,
+             29,30,31,32);
+
+    Mat4f m5(250,260,270,280,
+             618,644,670,696,
+             986,1028,1070,1112,
+             1354,1412,1470,1528);
+    Vec4f v1 (1,2,3,4), v2(30, 70, 110, 150);
+    float f1 = 13;
+    
+    RegisterFn(Mat4f, Mat4f, Mat4f, m1, m1, m1, TestOperatorEqual);
+    RegisterFn(Mat4f, Mat4f, Mat4f, m1, m1, m2, TestOperatorPlus);
+    RegisterFn(Mat4f, Mat4f, Mat4f, m2, m1, m1, TestOperatorMinus);
+    RegisterFn(Mat4f, Mat4f, Mat4f, m3, m4, m5, TestOperatorMul);
+
+    PrintResult(Mat4f, Mat4f, Mat4f)
+    RegisterFn(Mat4f, Vec4f, Vec4f, m3, v1, v2, TestOperatorMul); 
+
+    PrintResult(Mat4f, Vec4f, Vec4f)
     EndTestCase
   }
 }
