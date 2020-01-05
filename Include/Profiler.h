@@ -29,7 +29,7 @@ public:
 	const Profiler& operator=(const Profiler&) = delete;
 	Profiler(const Profiler&) = delete;
 	void Init(const std::string& outputFolderPath, const std::string& outputFileName) { m_ProfilerFile = outputFolderPath + outputFileName; };
-	void DumpblockToFile(const std::string& fileName) { profiler::dumpBlocksToFile(std::string(m_ProfilerFile + ".prof").c_str()); }
+	void DumpblockToFile() { profiler::dumpBlocksToFile(std::string(m_ProfilerFile + ".prof").c_str()); }
 	//void InsertBlock(const std::string& blockName, profilerBlockColor c = profilerBlockColor::FUNCTION_COLOR);
 	//void Insert(const std::string& blockName) { EASY_BLOCK(blockName.c_str()) }
 	//void EndBlock() { EASY_END_BLOCK }

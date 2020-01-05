@@ -47,7 +47,7 @@ bool TestTranspose(const T1& in1, const T1& in2, const T2& out1, const T3& op)
     return op(in1) == out1;
 }
 namespace JSMathTestCaseMacroMethod
-{
+{ 
   RegisterOperatorFn(Vec2f, Vec2f, Vec2f, Assignment, =)
   RegisterOperatorFn(Vec2f, Vec2f, Vec2f, Plus, +)
   RegisterOperatorFn(Vec2f, Vec2f, Vec2f, Minus, -)
@@ -225,7 +225,7 @@ for (const auto& elem : testingVec<t1, t2, t3>) \
     PrintTestCase((TestDotProduct<Vec4f, float, float(*)(const Vec4f&, const Vec4f&)>(v3, v4, f, Vec4::Dot)));
     EndTestCase
   }
-  void TestJSMat4Class()
+  void TestJSMat4Class() 
   { 
     PrintFnName
     PrintTestCase(TestCreatation<Mat4f>());  
@@ -255,7 +255,7 @@ for (const auto& elem : testingVec<t1, t2, t3>) \
     PrintResult(Mat4f, Mat4f, Mat4f)
 
     RegisterFn(Mat4f, Vec4f, Vec4f, m3, v1, v2, TestOperatorMul); 
-    PrintResult(Mat4f, Vec4f, Vec4f)
+    PrintResult(Mat4f, Vec4f, Vec4f) 
  
     PrintTestCase((TestTranspose<Mat4f, Mat4f, Mat4f(*)(Mat4f)>(m5, m5, m6, Mat4::Transpose)));
     EndTestCase

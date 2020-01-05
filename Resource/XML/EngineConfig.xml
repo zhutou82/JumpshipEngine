@@ -9,7 +9,10 @@
 <Profiler>version1</Profiler>
 </FileName>
 
-<WindowConfig>
-<WindowName>JSWindow</WindowName>
+<GraphicsEngine>
+<WindowName>JSEngine</WindowName>
 <WindowResolution>800,600</WindowResolution>
-</WindowConfig>
+<WindowFullScreen>0</WindowFullScreen>
+</GraphicsEngine>
+
+

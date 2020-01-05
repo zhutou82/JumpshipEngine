@@ -3,35 +3,45 @@
 #include "Graphics.h"
 #include "JSMathTestcases.h"
 
+
 JumpshipEngine::JumpshipEngine()
 : 
 m_RecourseFolderPath("Resource/"),
 m_XMLFolderPath (m_RecourseFolderPath + "XML/"),
 m_EngineConfigXMLFile (m_XMLFolderPath + "EngineConfig.xml")
 {
-	m_EngineConfigFolderVec.reserve(EngineFolderConfig_Index::EngineFolderConfig_Index_MAX_SIZE);
-  m_EngineConfigFileNameVec.reserve(EngineFileConfig_Index::EngineFileConfig_Index_MAX_SIZE);
+
 }
 
-
-void JumpshipEngine::Initialize()
+int JumpshipEngine::Initialize(_In_ HINSTANCE hInstance,
+                                _In_ LPSTR lpCmdLine,
+                                _In_ int nCmdShow)
 {
-  std::cout << 123 << std::endl;
   EASY_FUNCTION(GetProfilerBLKColor(FUNCTION_COLOR));
 	LogDebug("Initialize");
 	LogDebug("Serializering data");
 	LoadEnginePathConfig();
-	GetProfiler.Init(m_EngineConfigFolderVec[EngineFolderConfig_Index::PROFILER_FOLDERER],
-                   m_EngineConfigFileNameVec[EngineFileConfig_Index::PROFILER_FILENAME]);
+	GetProfiler.Init(g_EngineConfigFolderPathVec[FolderPath_Index::PROFILER_FOLDERER],
+                   g_EngineConfigFileNameVec[FileName_Index::PROFILER_FILENAME]);
 
+  //init graphics engine
+  if (GLOBAL::JSPFAILED == GetGraphicsEngine.Initialize(hInstance, 
+                                                        lpCmdLine, 
+                                                        nCmdShow, 
+                                                        JSMath::StringToVec2i(g_EngineConfigGraphicsEngineVec[GraphicsEngine_Index::WindowResolution]),
+                                                        g_EngineConfigGraphicsEngineVec[GraphicsEngine_Index::WindowName],
+                                                        std::stoi(g_EngineConfigGraphicsEngineVec[GraphicsEngine_Index::WindowFullScreen])))
+  {
+    return GLOBAL::JSPFAILED;
+  }
 
   //testing math library
   //JSMathTestCaseMacroMethod::TestJSVec2Class();
   //JSMathTestCaseMacroMethod::TestJSVec3Class();
   //JSMathTestCaseMacroMethod::TestJSMat2Class();
-  JSMathTestCaseMacroMethod::TestJSMat3Class();
+  //JSMathTestCaseMacroMethod::TestJSMat3Class();
   //JSMathTestCaseTemplateMethod::TestJSVec4Class();
-  JSMathTestCaseTemplateMethod::TestJSMat4Class();
+  //JSMathTestCaseTemplateMethod::TestJSMat4Class();
 
   //EASY_BLOCK("TestJSMat4Class");
   //JSMathStreeTest::TestJSMat4Class();
@@ -92,22 +102,21 @@ void JumpshipEngine::Initialize()
   //Vec2<int> windowResolution(800, 600);
   //init graphics engine
   //GetGraphicsEngine.Init(windowResolution);
-
+  return GLOBAL::JSPSUCCESSED;
  }
+
+#define SerializeConfig(x) \
+GetSerializer.Serialize(m_EngineConfigXMLFile, #x, g_EngineConfig##x##Vec); \
+PrintCont(g_EngineConfig##x##Vec) \
 
 void JumpshipEngine::LoadEnginePathConfig()
 {
   EASY_FUNCTION(GetProfilerBLKColor(FUNCTION_COLOR));
 	//Serializering Engine Config
 	LogDebug("Serializering Engine Config");
-	GetSerializer.Serialize(m_EngineConfigXMLFile,
-													"FolderPath", 
-													m_EngineConfigFolderVec);
-  GetSerializer.Serialize(m_EngineConfigXMLFile,
-                          "FileName",
-                          m_EngineConfigFileNameVec);
-
-	PrintCont(m_EngineConfigFolderVec);
+  SerializeConfig(FolderPath);
+  SerializeConfig(FileName);
+  SerializeConfig(GraphicsEngine);
 }
 void JumpshipEngine::Load()
 {
@@ -119,11 +128,14 @@ void JumpshipEngine::Update()
 	EASY_FUNCTION(GetProfilerBLKColor(FUNCTION_COLOR));
 	LogDebug("Engine Loop");
   //Engine loop
-	//while (!GetInput.IsKeyboardKeyPressed(VK_ESCAPE))
-	{
+  MSG msg;
+  while (GetMessage(&msg, NULL, 0, 0))
+  {
+    TranslateMessage(&msg);
     //checking input
+    DispatchMessage(&msg);
     CheckInput();
-	}
+  }
   LogDebug("Exit Engine Loop");
 }
 void JumpshipEngine::Unload()
@@ -134,6 +146,8 @@ void JumpshipEngine::Unload()
 void JumpshipEngine::Release()
 {
 	EASY_FUNCTION(GetProfilerBLKColor(FUNCTION_COLOR));
+  //create profiler file
+  GetProfiler.DumpblockToFile();
 	LogDebug("Release");
 }
 
@@ -154,6 +168,10 @@ void JumpshipEngine::CheckInput()
   if (GetInput.IsMouseKeyDown(VK_LBUTTON))
   {
     LogDebug("MouseL");
+  }
+  if (GetInput.IsKeyboardKeyPressed(VK_ESCAPE))
+  {
+    PostQuitMessage(0);
   }
 }
 

@@ -28,7 +28,9 @@ public:
   void         SetValue(int index, float v) { m_XY[index] = v; }
   float        Magnitude() const { return sqrt(Dot(*this)); }
   const Vec2f& NormalizeThis();
-  
+  const float GetX() const { return m_XY[0]; }
+  const float GetY() const { return m_XY[1]; }
+
   friend bool operator==(const Vec2f& lhs, const Vec2f& rhs) { return _mm_movemask_ps(_mm_cmpeq_ps(lhs.m_XYMM, rhs.m_XYMM)) == 0x0F; }
   friend std::ostream& operator<<(std::ostream& os, const Vec2f& rhs) { os << "(" << rhs.m_XY[0] << ", " << rhs.m_XY[1] << ")"; return os;}
 private:
@@ -37,13 +39,17 @@ private:
 class Vec2i
 {
   public:
+  Vec2i(int x, int y) : m_XY {x, y} {}
+  Vec2i(int x = 0) : m_XY{ x, x } {}
   //operator overloading
   const Vec2i& operator+=(const Vec2i& rhs) { m_XY[0] += rhs.m_XY[0]; m_XY[1] += rhs.m_XY[1]; }
   const Vec2i& operator-=(const Vec2i& rhs) { m_XY[0] -= rhs.m_XY[0]; m_XY[1] -= rhs.m_XY[1]; }
   const Vec2i& operator*=(const Vec2i& rhs) { m_XY[0] *= rhs.m_XY[0]; m_XY[1] *= rhs.m_XY[1]; }
-  const Vec2i& operator=(const Vec2i& rhs)  { m_XY[0] = rhs.m_XY[0]; m_XY[1] = rhs.m_XY[1]; }
+  const Vec2i& operator=(const Vec2i& rhs)  { m_XY[0] = rhs.m_XY[0]; m_XY[1] = rhs.m_XY[1]; return *this; }
   bool operator==(const Vec2i& rhs)         { return m_XY[0] == rhs.m_XY[0] && m_XY[1] == rhs.m_XY[1]; }
   int Dot(const Vec2i& rhs)                 { return m_XY[0] * rhs.m_XY[0] + m_XY[1] * rhs.m_XY[1]; }
+  int GetX() const {return m_XY[0]; }
+  int GetY() const {return m_XY[1]; }
   friend std::ostream& operator<<(std::ostream& os, const Vec2i& rhs){ os << "(" << rhs.m_XY[0] << ", " << rhs.m_XY[1] << ")"; return os;}
   private:
   int m_XY[2];
