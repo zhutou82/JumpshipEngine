@@ -24,6 +24,12 @@ namespace JSMathStreeTest
   void TestJSMat4Class();
 }
 
+
+namespace JSMultithreading
+{
+  void TestJSMultithreading();
+}
+
 //#include <iostream>
 //#include <vector>
 //#include <functional>

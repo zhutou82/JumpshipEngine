@@ -1,4 +1,18 @@
 #include "JSMathTestcases.h"
+#include "Common/CommonHeader.h"
+#include <chrono>
+//for threadpool class
+#include <vector>
+#include <queue>
+#include <memory>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <future>
+#include <functional>
+#include <stdexcept>
+#include "ThreadPool.h"
+
 //template <typename T>
 //bool(*vec2Testcases[])(const T& t1, const T& t2);
 //template <typename T1, typename T2, typename T3>
@@ -264,7 +278,7 @@ for (const auto& elem : testingVec<t1, t2, t3>) \
 
 namespace JSMathStreeTest
 {
-#define NUM_OF_TEST 100000000
+#define NUM_OF_TEST 5000000
 #define TestOperator(t1, in1, in2, op) \
 t1 tmp; \
 for(int i =0; i < NUM_OF_TEST; ++i) {tmp = in1 op in2;} \
@@ -292,5 +306,225 @@ std::cout << tmp << std::endl; \
   }
 }
 
+
+namespace JSMultithreading
+{
+  using namespace std::chrono;
+  void initializer(std::promise<int>* promiseObj)
+  {
+    std::cout << "Inside thread" << std::endl;
+    promiseObj->set_value(35); 
+  }
+  int foo()
+  {
+    std::this_thread::sleep_for(3s);
+    return 10;
+  }
+  int goo()
+  {
+    std::this_thread::sleep_for(2s);
+    return 30;
+  }
+
+
+ auto fn(int i) 
+ -> int
+{
+  return 0;
+}
+
+  class Threadpool
+  {
+  public: 
+
+    Threadpool(size_t numOfWorkers) : m_Stop(false)
+    {
+      for (int i = 0; i < numOfWorkers; ++i)
+      {
+        m_Workers.emplace_back([this]()
+        {
+          //while (1)
+          {
+            std::function<void()> task;
+            //std::function<void()> task;
+            {
+              std::unique_lock<std::mutex> lock(this->m_Mutex);
+              //if task is empty, wait 
+              while (this->m_Tasks.empty())
+                this->m_CV.wait(lock);
+
+              //if(this->m_Stop && this->m_Tasks.empty()) return;
+              task = std::move(this->m_Tasks.front());
+              this->m_Tasks.pop();
+            }
+            task();
+          } 
+
+        }
+        );
+      }
+    }
+    template<class F, class... Args>
+    void AddTask(F&& f, Args&&... args)
+      //-> std::future<typename std::result_of<F(Args...)>::type>
+    {
+      using return_type = typename std::result_of<F(Args...)>::type;
+      {
+        std::unique_lock<std::mutex> lock(m_Mutex);
+        //forward is to maintain the r-value-ness, if not, it will convert to L-value reference
+        auto task = std::make_shared< std::packaged_task<return_type()> >(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
+
+        //std::future<return_type> result = task->get_future();
+        m_Tasks.emplace([task]()
+        {
+          (*task)();
+        });
+      }
+    }
+
+    void JoinAllWorkers()
+    {
+      {
+        std::unique_lock<std::mutex> lock(m_Mutex);
+        m_Stop = true;
+      }
+      m_CV.notify_all();
+
+      for (auto& elem : m_Workers)
+      {
+        elem.join();
+      }
+    }
+
+    ~Threadpool()
+    {
+
+    }
+
+
+  private:
+    // need to keep track of threads so we can join them
+    std::vector< std::thread > m_Workers;
+    // the task queue
+    std::queue< std::function<void()> > m_Tasks;
+    std::mutex m_Mutex;
+    std::condition_variable m_CV;
+    bool m_Stop;
+  };
+  std::condition_variable cv;
+  std::mutex mutex;
+  bool ready = false;
+
+
+  void printThreadID()
+  {
+    //std::unique_lock<std::mutex> lck(mutex);
+    //cv.wait(lck, [&]()
+    //  {
+    //    return ready;
+    //  }
+    //);
+    //while(!ready) cv.wait(lck);
+    JSMathStreeTest::TestJSMat4Class();
+  }
+
+  //int printThreadID()
+  //{
+  //  //std::unique_lock<std::mutex> lck(mutex);
+  //  //cv.wait(lck, [&]()
+  //  //{
+  //  //  return ready;
+  //  //}
+  //  //);
+  //  //while(!ready) cv.wait(lck);
+  //  std::this_thread::sleep_for(1s);
+  //  return 10 * 10;
+  //}
+  void go()
+  {
+    //std::unique_lock<std::mutex> lck(mutex);
+    //ready = true;
+    //cv.notify_all();
+  }
+
+ using namespace std::chrono;
+
+#define START start = system_clock::now();
+#define END std::cout << duration_cast<seconds>(system_clock::now() - start).count() << "s\n";
+
+  void TestJSMultithreading() 
+  {
+    system_clock::time_point start; 
+
+    EASY_BLOCK("No-threading"); 
+    GetThreadPool.InitWorkers(4);
+   
+    START
+    GetThreadPool.AssignWorkersForJobs();
+    for (int i = 0; i < 4; ++i)
+    { 
+      GetThreadPool.AddJobs(printThreadID);
+    }
+    GetThreadPool.StartWork();
+    END
+
+    START
+    GetThreadPool.AssignWorkersForJobs();
+    for (int i = 0; i < 4; ++i)
+    {
+      GetThreadPool.AddJobs(printThreadID);
+    }
+    GetThreadPool.StartWork();
+    END
+    //system_clock::time_point start;
+    //int v1, v2; 
+    //START
+    //std::cout << "Single thread" << std::endl;
+    //v1 = foo();
+    //v2 = goo();s
+    //std::cout << v1 + v2 << std::endl;
+    //END
+    //
+    //START
+    //std::cout << "Two thread" << std::endl;
+    //std::future<int> f1 = std::async(foo);
+    //v2 = goo();
+    //v1 = f1.get();
+    //std::cout << v1 + v2 << std::endl;
+    //END
+
+    //std::vector<std::thread> threadVec;
+    //for (int i = 0; i < 10; ++i)
+    //{
+    //  threadVec.emplace_back(printThreadID, i);
+    //}
+    //go();
+
+    //for (int i = 0; i < 10; ++i)
+    //{
+    //  threadVec[i].join();
+    //}
+
+    //std::vector<std::string> sv;
+    //std::string s("1");
+    //std::string s1("2");
+    //std::string s2("3"); 
+
+    //sv.push_back(s);
+    //sv.emplace_back(s1);
+
+    
+
+
+    //std::promise<int> promiseObj;
+    //std::future<int> futureObj = promiseObj.get_future();
+    //std::thread t(initializer, &promiseObj);
+    //std::cout << futureObj.get() << std::endl;
+    //t.join();
+    
+
+  }
+
+}
 
 

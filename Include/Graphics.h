@@ -3,14 +3,12 @@
 #include "Common/SingletonBaseClass.h"
 #include "Math/JSMath.h"
 
+
 #define GetGraphicsEngine Singleton<Graphics>::GetInstance()
 class Graphics : public Singleton<Graphics>
 {
   public:
   friend class Singleton<Graphics>;
-
-  const Graphics& operator=(const Graphics&) = delete;
-  Graphics(const Graphics&) = delete;
   int Initialize(_In_ HINSTANCE hInstance,
                   _In_ LPSTR lpCmdLine,
                   _In_ int nCmdShow,
