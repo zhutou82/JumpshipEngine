@@ -452,30 +452,35 @@ namespace JSMultithreading
 #define START start = system_clock::now();
 #define END std::cout << duration_cast<seconds>(system_clock::now() - start).count() << "s\n";
 
+
+
   void TestJSMultithreading() 
   {
     system_clock::time_point start; 
+    int i = 10;
+    //fc f;
 
-    EASY_BLOCK("No-threading"); 
-    GetThreadPool.InitWorkers(4);
-   
-    START
-    GetThreadPool.AssignWorkersForJobs();
-    for (int i = 0; i < 4; ++i)
-    { 
-      GetThreadPool.AddJobs(printThreadID);
-    }
-    GetThreadPool.StartWork();
-    END
-
-    START
-    GetThreadPool.AssignWorkersForJobs();
-    for (int i = 0; i < 4; ++i)
+    EASY_BLOCK("No-threading");  
+    GetThreadPool.InitWorkers(2);
+    //f();
+    GetThreadPool.AddTask([&i]()
     {
-      GetThreadPool.AddJobs(printThreadID);
+      std::cout << i << std::endl;
+    });
+
+    START
+    for (int i = 0; i < 2; ++i)
+    {  
+      GetThreadPool.AddTask(printThreadID);
     }
-    GetThreadPool.StartWork();
     END
+
+    //START
+    //for (int i = 0; i < 4; ++i)
+    //{ 
+    //  GetThreadPool.AddJobs(printThreadID);
+    //}
+    //END
     //system_clock::time_point start;
     //int v1, v2; 
     //START
@@ -498,7 +503,7 @@ namespace JSMultithreading
     //{
     //  threadVec.emplace_back(printThreadID, i);
     //}
-    //go();
+    //go(); 
 
     //for (int i = 0; i < 10; ++i)
     //{
@@ -509,7 +514,7 @@ namespace JSMultithreading
     //std::string s("1");
     //std::string s1("2");
     //std::string s2("3"); 
-
+     
     //sv.push_back(s);
     //sv.emplace_back(s1);
 
@@ -522,7 +527,6 @@ namespace JSMultithreading
     //std::cout << futureObj.get() << std::endl;
     //t.join();
     
-
   }
 
 }

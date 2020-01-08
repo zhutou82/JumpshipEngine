@@ -2,6 +2,7 @@
 #pragma warning(disable:4996) //to fix CRT_NO_WARNING
 #include "Common/CommonHeader.h"
 #include "Common/SingletonBaseClass.h"
+#include "ThreadPool.h"
 
 #define LogDebug(x) Singleton<MyLogger>::GetInstance().Debug(x)
 #define LogInfo(x) Singleton<MyLogger>::GetInstance().Info(x)
@@ -15,6 +16,7 @@ public:
 	template <typename Cont>
 	void PrintC(const Cont& cont)
 	{
+    //GetThreadPool.GetInstance();
 		for (const auto& elem : cont)
 			std::cout << elem << " ";
 		std::cout << std::endl;

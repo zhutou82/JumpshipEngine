@@ -166,8 +166,8 @@ int Graphics::CreateWindows()
 
   // hWnd: the value returned from CreateWindow
 // nCmdShow: the fourth parameter from WinMain
-  //ShowWindow(hWnd, m_nCmdShow);
-  //UpdateWindow(hWnd);
+  ShowWindow(hWnd, m_nCmdShow);
+  UpdateWindow(hWnd);
 
   return GLOBAL::JSPSUCCESSED;
 }
