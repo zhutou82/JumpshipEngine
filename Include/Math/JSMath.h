@@ -12,3 +12,4 @@ namespace JSMath
   Vec2f StringToVec2f(const std::string& rhs);
   Vec2i StringToVec2i(const std::string& rhs);
 }
+

@@ -1,4 +1,6 @@
 #include "Logger.h"
+#include <stdio.h>
+#include <stdarg.h>
 
 void MyLogger::Debug(const char* debugMsg, ...)
 {

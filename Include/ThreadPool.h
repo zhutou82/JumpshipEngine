@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Common/CommonHeader.h"
 #include "Common/SingletonBaseClass.h"
 #include <vector>
 #include <queue>
@@ -17,7 +16,7 @@ class ThreadPool : public Singleton<ThreadPool>
 {
 public:
   friend class Singleton<ThreadPool>;
-  void InitWorkers(size_t numberOfWorkers);
+  void InitWorkers();
   //template <class F, class... Args>
   //void AddJobs(F&& f, Args&&... args)
   void AddTask(std::function<void()> task)
@@ -42,7 +41,7 @@ private:
   ThreadPool() 
   : 
   m_StopWork(false), 
-  m_NumberOfWorkers(std::thread::hardware_concurrency()) 
+  m_NumberOfWorkers(std::thread::hardware_concurrency())  //initialize workers
   {}
   ~ThreadPool()
   {

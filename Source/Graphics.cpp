@@ -2,6 +2,7 @@
 
 
 
+
 int Graphics::Initialize(HINSTANCE hInstance, 
                           LPSTR lpCmdLine, 
                           int nCmdShow, 
@@ -17,9 +18,12 @@ int Graphics::Initialize(HINSTANCE hInstance,
   m_IsFullScreen = isFullScreen;
   //create window
   if(GLOBAL::JSPFAILED == CreateWindows()) return GLOBAL::JSPFAILED;
+
+  //initialize directX 11
+  if(GLOBAL::JSPFAILED == SetupD3DClass()) return GLOBAL::JSPFAILED;
+
   return GLOBAL::JSPSUCCESSED;
 }
-
 void Graphics::AllocateConsole()
 {
   //allocate console and redirect cout to console
@@ -30,6 +34,25 @@ void Graphics::AllocateConsole()
   freopen(GLOBAL::CONSOLESTR, GLOBAL::CONSOLE_WRITE, stderr);
 }
 
+void Graphics::Shutdown()
+{
+  m_D3D->Shutdown();
+  JSDelete(m_D3D);
+}
+
+bool Graphics::Frame()
+{
+  //render the graphics scene
+  bool result = Render();
+  return result;
+}
+
+bool Graphics::Render()
+{
+  m_D3D->BeginScene(0.5f,0.5f,0.5f,1.f);
+  m_D3D->EndScene();
+  return true;
+}
 
 //handle messages that the application receives from Windows when events occur
 //it is to handle an event, like "OK", "QUIT" from users' input
@@ -71,8 +94,6 @@ LRESULT CALLBACK WndProc(
   }
   return 0;
 }
-
-
 int Graphics::CreateWindows()
 {
   /*contains the information about the window, such as:
@@ -128,7 +149,7 @@ int Graphics::CreateWindows()
   // hInstance: the first parameter from WinMain
   // NULL: not used in this application
   const Vec2i& resolution = GetDesktopResolution();
-  HWND hWnd =!m_IsFullScreen ? CreateWindow(m_WindowsName.c_str(),
+  m_HWND =!m_IsFullScreen ? CreateWindow(m_WindowsName.c_str(),
                                             m_WindowsName.c_str(),
                                             WS_OVERLAPPEDWINDOW,
                                             (resolution.GetX() - m_WindowResulution.GetX()) >> 1, 
@@ -141,20 +162,20 @@ int Graphics::CreateWindows()
                                             NULL
                                            ) 
                              :
-                              CreateWindow(m_WindowsName.c_str(),
-                                           m_WindowsName.c_str(),
-                                           WS_POPUP | WS_VISIBLE,
-                                           0, 
-                                           0,
-                                           resolution.GetX(),
-                                           resolution.GetY(),
-                                           NULL,
-                                           NULL,
-                                           m_hInstance,
-                                           NULL
-                                           );
+                             CreateWindow(m_WindowsName.c_str(),
+                                          m_WindowsName.c_str(),
+                                          WS_POPUP | WS_VISIBLE,
+                                          0,
+                                          0,
+                                          resolution.GetX(),
+                                          resolution.GetY(),
+                                          NULL,
+                                          NULL,
+                                          m_hInstance,
+                                          NULL
+                                          );
   // This function returns an HWND, which is a handle to a window. A handle is somewhat like a pointer that Windows uses to keep track of open windows. 
-  if (!hWnd)
+  if (!m_HWND)
   {
     MessageBox(NULL,
                FailedToCreateWindowMsg,  
@@ -166,10 +187,29 @@ int Graphics::CreateWindows()
 
   // hWnd: the value returned from CreateWindow
 // nCmdShow: the fourth parameter from WinMain
-  ShowWindow(hWnd, m_nCmdShow);
-  UpdateWindow(hWnd);
+  ShowWindow(m_HWND, m_nCmdShow);
+  UpdateWindow(m_HWND);
 
   return GLOBAL::JSPSUCCESSED;
+}
+
+int Graphics::SetupD3DClass()
+{
+  m_D3D = JSNew(D3DClass);
+  //initialize the Direct3D object
+  bool result = m_D3D->Initialize(m_WindowResulution, 
+                                  VSYNC_ENABLED, 
+                                  m_HWND, 
+                                  FULL_SCREEN, 
+                                  SCREEN_DEPTH,
+                                  SCREEN_NEAR);
+  if (!result)
+    MessageBox(m_HWND, 
+               FailedToInitD3DClass, 
+               ErrorWindowCaption, 
+               MB_ICONERROR);
+  
+  return result;
 }
 
 Vec2i Graphics::GetDesktopResolution()

@@ -1,9 +1,7 @@
 #include "ThreadPool.h"
 
-void ThreadPool::InitWorkers(size_t numberOfWorkers)
+void ThreadPool::InitWorkers()
 {
-  //initialize workers
-  m_NumberOfWorkers = std::move(numberOfWorkers);
   for (int i = 0; i < m_NumberOfWorkers; ++i)
   {
     m_Workers.emplace_back([this] () {

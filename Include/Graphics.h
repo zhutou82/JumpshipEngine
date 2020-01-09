@@ -2,6 +2,12 @@
 #include "Common/CommonHeader.h"
 #include "Common/SingletonBaseClass.h"
 #include "Math/JSMath.h"
+#include "Graphics/D3DClass.h"
+
+constexpr const bool FULL_SCREEN = false;
+constexpr const bool VSYNC_ENABLED = true;
+constexpr const float SCREEN_DEPTH = 1000.0f;
+constexpr const float SCREEN_NEAR = 0.1f;
 
 
 #define GetGraphicsEngine Singleton<Graphics>::GetInstance()
@@ -17,13 +23,19 @@ class Graphics : public Singleton<Graphics>
                   bool isFullScreen);
   void AllocateConsole();
   void PopupMessageBox();
+  void Shutdown();
+  bool Frame();
+  bool Render();
+  
   private:
 
   static constexpr const char* FailedToCreateWindowMsg = "Call to CreateWindow failed!";
   static constexpr const char* FailedToRegisterWindowMsg = "Call to RegisterClassEx failed!";
+  static constexpr const char* FailedToInitD3DClass = "Call to initialize Direct3D failed";
   static constexpr const char* ErrorWindowCaption = "ERROR!";
-  Graphics() {}
+  Graphics() : m_D3D(NULL) {}
   int CreateWindows();
+  int SetupD3DClass();
   Vec2i GetDesktopResolution();
   //window creation memebers
   std::string m_WindowsName;
@@ -33,4 +45,6 @@ class Graphics : public Singleton<Graphics>
   int m_nCmdShow;
   bool m_IsFullScreen;
 
+  D3DClass* m_D3D;
+  HWND m_HWND;
 };

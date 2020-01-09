@@ -2,7 +2,6 @@
 #include "Input.h"
 #include "Graphics.h"
 #include "JSMathTestcases.h"
-#include <chrono>
 
 JumpshipEngine::JumpshipEngine()
 : 
@@ -21,6 +20,7 @@ int JumpshipEngine::Initialize(_In_ HINSTANCE hInstance,
 	LogDebug("Initialize");
 	LogDebug("Serializering data");
 	LoadEnginePathConfig();
+  GetThreadPool.InitWorkers();
 	GetProfiler.Init(g_EngineConfigFolderPathVec[FolderPath_Index::PROFILER_FOLDERER],
                    g_EngineConfigFileNameVec[FileName_Index::PROFILER_FILENAME]);
 
@@ -46,17 +46,11 @@ int JumpshipEngine::Initialize(_In_ HINSTANCE hInstance,
   //EASY_BLOCK("TestJSMat4Class");
   //JSMathStreeTest::TestJSMat4Class();
   //EASY_END_BLOCK
-#define START start = system_clock::now();
-#define END std::cout << duration_cast<seconds>(system_clock::now() - start).count() << "s\n";
  /* EASY_BLOCK("TestJSMat33Class");
   JSMathStreeTest::TestJSMat3Class();
   EASY_END_BLOCK*/
-  using namespace std::chrono;
   //practicing mulithreading
-  system_clock::time_point start;
-  START
-  JSMultithreading::TestJSMultithreading(); 
-  END
+  //JSMultithreading::TestJSMultithreading(); 
 #define TEST_3
 #ifdef TEST_2                
 

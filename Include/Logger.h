@@ -1,6 +1,6 @@
 #pragma once
 #pragma warning(disable:4996) //to fix CRT_NO_WARNING
-#include "Common/CommonHeader.h"
+#include <iostream> 
 #include "Common/SingletonBaseClass.h"
 #include "ThreadPool.h"
 
@@ -16,10 +16,12 @@ public:
 	template <typename Cont>
 	void PrintC(const Cont& cont)
 	{
-    //GetThreadPool.GetInstance();
-		for (const auto& elem : cont)
-			std::cout << elem << " ";
-		std::cout << std::endl;
+    GetThreadPool.AddTask([&cont](){
+      for (const auto& elem : cont)
+        std::cout << elem << " ";
+    std::cout << std::endl;
+    }
+    );
 	}
 private:
     MyLogger() {};

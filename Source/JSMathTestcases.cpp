@@ -457,23 +457,14 @@ namespace JSMultithreading
   void TestJSMultithreading() 
   {
     system_clock::time_point start; 
-    int i = 10;
     //fc f;
 
     EASY_BLOCK("No-threading");  
-    GetThreadPool.InitWorkers(2);
     //f();
-    GetThreadPool.AddTask([&i]()
-    {
-      std::cout << i << std::endl;
-    });
-
-    START
     for (int i = 0; i < 2; ++i)
     {  
       GetThreadPool.AddTask(printThreadID);
     }
-    END
 
     //START
     //for (int i = 0; i < 4; ++i)
