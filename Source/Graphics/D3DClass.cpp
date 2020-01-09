@@ -175,20 +175,67 @@ bool D3DClass::Initialize(const Vec2i& screenResolution,
   At the same time we will attach a stencil buffer to our depth buffer. The stencil buffer can be used to achieve effects such as motion blur, 
   volumetric shadows, and other things.
   */
-  // Initialize the description of the depth buffer.
+  //Initialize the description of the depth buffer.
   ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
   // Set up the description of the depth buffer.
   depthBufferDesc.Width = screenWidth;
   depthBufferDesc.Height = screenHeight;
-  depthBufferDesc.MipLevels = 1;
-  depthBufferDesc.ArraySize = 1;
-  depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-  depthBufferDesc.SampleDesc.Count = 1;
-  depthBufferDesc.SampleDesc.Quality = 0;
-  depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-  depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-  depthBufferDesc.CPUAccessFlags = 0;
-  depthBufferDesc.MiscFlags = 0;
+  //Improving image quality, increased performance
+  /* Mipmaps are smaller, pre-filtered versions of a texture image, representing different levels of detail (LOD) of the texture. 
+  They are often stored in sequences of progressively smaller textures called mipmap chains with each level half as small as the previous one.*/
+  depthBufferDesc.MipLevels = 1; //Use 1 for a multisampled texture; or 0 to generate a full set of subtextures.
+  depthBufferDesc.ArraySize = 1; //Number of textures in the texture array.
+  depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; //A 32-bit z-buffer format that supports 24 bits for depth and 8 bits for stencil.
+  depthBufferDesc.SampleDesc.Count = 1; //The number of multisamples per pixel.
+  depthBufferDesc.SampleDesc.Quality = 0; //The image quality level. The higher the quality, the lower the performance.
+  depthBufferDesc.Usage = D3D11_USAGE_DEFAULT; //Value that identifies how the texture is to be read from and written to. The most common value is D3D11_USAGE_DEFAULT; 
+  depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL; //Bind a texture as a depth-stencil target for the output-merger stage.
+  depthBufferDesc.CPUAccessFlags = 0; //Flags to specify the types of CPU access allowed. Use 0 if CPU access is not required. These flags can be combined with a logical OR.
+  /*Flags that identify other, less common resource options. Use 0 if none of these flags apply. 
+  These flags can be combined by using a logical OR. For a texture cube-map, 
+  set the D3D11_RESOURCE_MISC_TEXTURECUBE flag. Cube-map arrays (that is, ArraySize > 6) 
+  require feature level D3D_FEATURE_LEVEL_10_1 or higher.
+  */
+  depthBufferDesc.MiscFlags = 0; 
+  // Create the texture for the depth buffer using the filled out description.
+  result = m_Device->CreateTexture2D(&depthBufferDesc, NULL, &m_DepthStencilBuffer);
+  if (FAILED(result))return false;
+  
+  //Initialize the description of the stencil state.
+  /*
+  Stencil buffer is used to limit the area of rendering
+  The simple combination of depth test and stencil modifiers make a vast number of effects possible 
+  (such as stencil shadow volumes, Two-Sided Stencil,[1] compositing, decaling, dissolves, fades, swipes, silhouettes, outline drawing or 
+  highlighting of intersections between complex primitives)
+  The most typical application is still to add shadows to 3D applications. It is also used for planar reflections.
+  */
+  ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+  // Set up the description of the stencil state.
+  depthStencilDesc.DepthEnable = true; //Enable depth testing.
+  //Identify a portion of the depth-stencil buffer that can be modified by depth data,
+  depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL; //Turn on writes to the depth-stencil buffer
+  depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS; //If the source data is less than the destination data, the comparison passes
+  depthStencilDesc.StencilEnable = true; //Enable stencil testing.
+  depthStencilDesc.StencilReadMask = 0xFF; //Identify a portion of the depth-stencil buffer for reading stencil data, the last 8 bits
+  depthStencilDesc.StencilWriteMask = 0xFF; //Identify a portion of the depth-stencil buffer for writing  stencil data, the last 8 bits
+  //Stencil operations if pixel is front-facing.
+  //Identify how to use the results of the depth test and the stencil test for pixels whose surface normal is facing towards the camera
+  depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP; //A D3D12_STENCIL_OP-typed value that identifies the stencil operation to perform when stencil testing fails.
+  depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR; //A D3D12_STENCIL_OP-typed value that identifies the stencil operation to perform when stencil testing passes and depth testing fails.
+  depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP; //A D3D12_STENCIL_OP-typed value that identifies the stencil operation to perform when stencil testing and depth testing both pass.
+  depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS; //A D3D12_COMPARISON_FUNC-typed value that identifies the function that compares stencil data against existing stencil data.
+  //Stencil operations if pixel is back-facing.
+  //Identify how to use the results of the depth test and the stencil test for pixels whose surface normal is facing away from the camera
+  depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+  depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+  depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+  depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+  // Create the depth stencil state.
+  result = m_Device->CreateDepthStencilState(&depthStencilDesc, &m_DepthStencilState);
+  if (FAILED(result)) return false;
+  // Set the depth stencil state.
+  m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState, 1);
+
 
   return false;
 }
