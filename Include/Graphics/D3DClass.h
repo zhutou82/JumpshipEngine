@@ -23,9 +23,6 @@ and presenting rendered frames to a window or monitor for display.
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include "Math/JSMath.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <locale.h>
 
 class D3DClass
 {
@@ -34,7 +31,7 @@ public:
    :
    m_VsyncEnable(false),
    m_VideoCardMemory(0),  
-   m_WwapChain(0),
+   m_SwapChain(0),
    m_Device(0), 
    m_DeviceContext(0),
    m_RenderTargetView(0),
@@ -53,30 +50,38 @@ public:
    void BeginScene(float x, float y, float z, float w);
    void EndScene();
    //A device is used to create resources and to enumerate the capabilities of a display adapter.
-   ID3D11Device* GetDevice();
-   ID3D11DeviceContext* GetDeviceContext();
+   ID3D11Device* GetDevice() const { return m_Device; }
+   ID3D11DeviceContext* GetDeviceContext() const { return m_DeviceContext; }
    void GetVideoCardInfo(char*, int&);
 
    D3DClass(const D3DClass&) = delete;
    const D3DClass& operator=(const D3DClass&) = delete;
    ~D3DClass() {} 
+   
+   const DirectX::XMMATRIX& GetProjectionMatrix() const { return m_ProjectionMatrix; }
+   const DirectX::XMMATRIX& GetWorldMatrix() const { return m_WorldMatrix; }
+   const DirectX::XMMATRIX& GetOrthoMatrix() const {return m_OrthoMatrix; }
+
 
 private:
   
   bool m_VsyncEnable;
   int m_VideoCardMemory;
   char m_VideoCardDescription[GLOBAL::DEFAULT_SIZE_OF_ADAPTER_DESCRIPTION];
-  IDXGISwapChain* m_WwapChain;
-  ID3D11Device* m_Device;
-  ID3D11DeviceContext* m_DeviceContext;
+  IDXGISwapChain* m_SwapChain;
+  ID3D11Device* m_Device; //The device object is a virtual representation of your video adapter.
+                          //Through it we access the video memory and create other Direct3D COM objects, such as graphics and special effects.
+  ID3D11DeviceContext* m_DeviceContext; //The device context object is a sort of "control panel" for the GPU. 
+                                        //Through it we control the rendering sequence and the process that translates 
+                                        //3D models into a final, 2D image on the screen.
   ID3D11RenderTargetView* m_RenderTargetView;
   ID3D11Texture2D* m_DepthStencilBuffer;
   ID3D11DepthStencilState* m_DepthStencilState;
   ID3D11DepthStencilView* m_DepthStencilView;
   ID3D11RasterizerState* m_RasterState;
 
-  //D3DXMATRIX m_projectionMatrix;
-  //D3DXMATRIX m_worldMatrix;
-  //D3DXMATRIX m_orthoMatrix;
+  DirectX::XMMATRIX m_ProjectionMatrix;
+  DirectX::XMMATRIX m_WorldMatrix;
+  DirectX::XMMATRIX m_OrthoMatrix;
 
 };

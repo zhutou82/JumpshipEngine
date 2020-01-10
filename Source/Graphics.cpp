@@ -20,7 +20,7 @@ int Graphics::Initialize(HINSTANCE hInstance,
   if(GLOBAL::JSPFAILED == CreateWindows()) return GLOBAL::JSPFAILED;
 
   //initialize directX 11
-  if(GLOBAL::JSPFAILED == SetupD3DClass()) return GLOBAL::JSPFAILED;
+  if(false == SetupD3DClass()) return false;
 
   return GLOBAL::JSPSUCCESSED;
 }
@@ -36,6 +36,14 @@ void Graphics::AllocateConsole()
 
 void Graphics::Shutdown()
 {
+  // Release the color shader object.
+  m_ColorShader->Shutdown();
+  JSDelete(m_ColorShader);
+  // Release the model object.
+  m_Model->Shutdown();
+  JSDelete(m_Model);
+  // Release the camera object.
+  JSDelete(m_Camera);
   m_D3D->Shutdown();
   JSDelete(m_D3D);
 }
@@ -49,7 +57,18 @@ bool Graphics::Frame()
 
 bool Graphics::Render()
 {
-  m_D3D->BeginScene(0.5f,0.5f,0.5f,1.f);
+  XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+  m_D3D->BeginScene(1.0f,0.1f,0.1f,1.f);
+  // Generate the view matrix based on the camera's position.
+  m_Camera->Render();
+  viewMatrix = m_Camera->GetViewMatrix();
+  worldMatrix = m_D3D->GetWorldMatrix();
+  projectionMatrix = m_D3D->GetProjectionMatrix();
+  // Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+  m_Model->Render(m_D3D->GetDeviceContext());
+  // Render the model using the color shader.
+  bool result = m_ColorShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+  if (!result) return false;
   m_D3D->EndScene();
   return true;
 }
@@ -208,7 +227,32 @@ int Graphics::SetupD3DClass()
                FailedToInitD3DClass, 
                ErrorWindowCaption, 
                MB_ICONERROR);
-  
+  // Create the camera object.
+  m_Camera = JSNew(CameraClass);
+  if(!m_Camera) return false;
+
+  // Set the initial position of the camera.
+  m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+  // Create the model object.
+  m_Model = JSNew(ModelClass);
+  if (!m_Model) return false;
+  // Initialize the model object.
+  result = m_Model->Initialize(m_D3D->GetDevice());
+  if (!result) 
+  {
+    MessageBox(m_HWND, FailedToIniModelObject, ErrorWindowCaption, MB_OK);
+    return false;
+  }
+  // Create the color shader object.
+  m_ColorShader = JSNew(ColorShaderClass);
+  if(!m_ColorShader) return false;
+  // Initialize the color shader object.
+  result = m_ColorShader->Initialize(m_D3D->GetDevice(), m_HWND);
+  if (!result)
+  {
+    MessageBox(m_HWND, FailedToInitColorShader, ErrorWindowCaption, MB_OK);
+    return false;
+  }
   return result;
 }
 

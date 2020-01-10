@@ -38,6 +38,9 @@ namespace GLOBAL
 #define JSNew(x) \
 new x;
 
+#define JSNewArray(x, y) \
+new x[y]
+
 
 #define JSDelete(x) assert(x != NULL); \
 delete x; x = NULL;  //deletion will access destructor

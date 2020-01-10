@@ -1,10 +1,9 @@
 #include "Graphics/D3DClass.h"
-
 bool D3DClass::Initialize(const Vec2i& screenResolution,
-                          bool vsyncEnable, 
-                          HWND hwnd, 
-                          bool fullScreen, 
-                          float screenDepth, 
+                          bool vsyncEnable,
+                          HWND hwnd,
+                          bool fullScreen,
+                          float screenDepth,
                           float screenNear)
 {
   HRESULT result = 0;
@@ -22,7 +21,9 @@ bool D3DClass::Initialize(const Vec2i& screenResolution,
   ID3D11Texture2D* backBufferPtr = NULL;
   D3D11_TEXTURE2D_DESC depthBufferDesc;
   D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-  D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+  //Specifies the subresources of a texture that are accessible from a depth-stencil view.
+  //Direct3D can reference an entire resource or it can reference subsets of a resource. The term subresource refers to a subset of a resource.
+  D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc; 
   D3D11_RASTERIZER_DESC rasterDesc;
   D3D11_VIEWPORT viewport;
   float fieldOfView = 0.f, screenAspect = 0.f;
@@ -54,7 +55,7 @@ bool D3DClass::Initialize(const Vec2i& screenResolution,
   // Now fill the display mode list structures.
   result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList);
   if (FAILED(result)) return false;
-  
+
   // Now go through all the display modes and find the one that matches the screen width and height.
   // When a match is found store the numerator and denominator of the refresh rate for that monitor.
   for (i = 0; i < numModes; i++)
@@ -74,11 +75,11 @@ bool D3DClass::Initialize(const Vec2i& screenResolution,
   // Store the dedicated video card memory in megabytes.
   m_VideoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / GLOBAL::MB_IN_BYTES);
   // Convert the name of the video card to a character array and store it.
-  error = wcstombs_s(&stringLength, 
-                     m_VideoCardDescription, 
-                     GLOBAL::DEFAULT_SIZE_OF_ADAPTER_DESCRIPTION, 
-                     adapterDesc.Description, 
-                     GLOBAL::DEFAULT_SIZE_OF_ADAPTER_DESCRIPTION);
+  error = wcstombs_s(&stringLength,
+    m_VideoCardDescription,
+    GLOBAL::DEFAULT_SIZE_OF_ADAPTER_DESCRIPTION,
+    adapterDesc.Description,
+    GLOBAL::DEFAULT_SIZE_OF_ADAPTER_DESCRIPTION);
   if (error != GLOBAL::ZERO) return false;
 
   // Release the display mode list.
@@ -143,26 +144,26 @@ bool D3DClass::Initialize(const Vec2i& screenResolution,
   featureLevel = D3D_FEATURE_LEVEL_11_0;
   // Create the swap chain, Direct3D device, and Direct3D device context.
   /*
-  Note that if the user does not have a DirectX 11 video card this function call will fail to create the device and device context. 
-  Also if you are testing DirectX 11 functionality yourself and don't have a DirectX 11 video card then you can replace D3D_DRIVER_TYPE_HARDWARE with D3D_DRIVER_TYPE_REFERENCE 
-  and DirectX will use your CPU to draw instead of the video card hardware. Note that this runs 1/1000 the speed but it is good for people who don't have DirectX 11 
+  Note that if the user does not have a DirectX 11 video card this function call will fail to create the device and device context.
+  Also if you are testing DirectX 11 functionality yourself and don't have a DirectX 11 video card then you can replace D3D_DRIVER_TYPE_HARDWARE with D3D_DRIVER_TYPE_REFERENCE
+  and DirectX will use your CPU to draw instead of the video card hardware. Note that this runs 1/1000 the speed but it is good for people who don't have DirectX 11
   video cards yet on all their machines.
   */
-  result = D3D11CreateDeviceAndSwapChain(NULL, 
-                                         D3D_DRIVER_TYPE_HARDWARE, 
-                                         NULL, 
-                                         0, 
-                                         &featureLevel, 
+  result = D3D11CreateDeviceAndSwapChain(NULL,
+                                         D3D_DRIVER_TYPE_HARDWARE,
+                                         NULL,
+                                         0,
+                                         &featureLevel,
                                          1,
-                                         D3D11_SDK_VERSION, 
-                                         &swapChainDesc, 
-                                         &m_WwapChain, 
-                                         &m_Device, 
-                                         NULL, 
+                                         D3D11_SDK_VERSION,
+                                         &swapChainDesc,
+                                         &m_SwapChain,
+                                         &m_Device,
+                                         NULL,
                                          &m_DeviceContext);
   if (FAILED(result)) return false;
   // Get the pointer to the back buffer.
-  result = m_WwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
+  result = m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
   if (FAILED(result)) return false;
   // Create the render target view with the back buffer pointer.
   result = m_Device->CreateRenderTargetView(backBufferPtr, NULL, &m_RenderTargetView);
@@ -171,8 +172,8 @@ bool D3DClass::Initialize(const Vec2i& screenResolution,
   backBufferPtr->Release();
   backBufferPtr = JSNULL;
   /*
-  set up a depth buffer description. We'll use this to create a depth buffer so that our polygons can be rendered properly in 3D space. 
-  At the same time we will attach a stencil buffer to our depth buffer. The stencil buffer can be used to achieve effects such as motion blur, 
+  set up a depth buffer description. We'll use this to create a depth buffer so that our polygons can be rendered properly in 3D space.
+  At the same time we will attach a stencil buffer to our depth buffer. The stencil buffer can be used to achieve effects such as motion blur,
   volumetric shadows, and other things.
   */
   //Initialize the description of the depth buffer.
@@ -181,7 +182,7 @@ bool D3DClass::Initialize(const Vec2i& screenResolution,
   depthBufferDesc.Width = screenWidth;
   depthBufferDesc.Height = screenHeight;
   //Improving image quality, increased performance
-  /* Mipmaps are smaller, pre-filtered versions of a texture image, representing different levels of detail (LOD) of the texture. 
+  /* Mipmaps are smaller, pre-filtered versions of a texture image, representing different levels of detail (LOD) of the texture.
   They are often stored in sequences of progressively smaller textures called mipmap chains with each level half as small as the previous one.*/
   depthBufferDesc.MipLevels = 1; //Use 1 for a multisampled texture; or 0 to generate a full set of subtextures.
   depthBufferDesc.ArraySize = 1; //Number of textures in the texture array.
@@ -191,21 +192,21 @@ bool D3DClass::Initialize(const Vec2i& screenResolution,
   depthBufferDesc.Usage = D3D11_USAGE_DEFAULT; //Value that identifies how the texture is to be read from and written to. The most common value is D3D11_USAGE_DEFAULT; 
   depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL; //Bind a texture as a depth-stencil target for the output-merger stage.
   depthBufferDesc.CPUAccessFlags = 0; //Flags to specify the types of CPU access allowed. Use 0 if CPU access is not required. These flags can be combined with a logical OR.
-  /*Flags that identify other, less common resource options. Use 0 if none of these flags apply. 
-  These flags can be combined by using a logical OR. For a texture cube-map, 
-  set the D3D11_RESOURCE_MISC_TEXTURECUBE flag. Cube-map arrays (that is, ArraySize > 6) 
+  /*Flags that identify other, less common resource options. Use 0 if none of these flags apply.
+  These flags can be combined by using a logical OR. For a texture cube-map,
+  set the D3D11_RESOURCE_MISC_TEXTURECUBE flag. Cube-map arrays (that is, ArraySize > 6)
   require feature level D3D_FEATURE_LEVEL_10_1 or higher.
   */
-  depthBufferDesc.MiscFlags = 0; 
+  depthBufferDesc.MiscFlags = 0;
   // Create the texture for the depth buffer using the filled out description.
   result = m_Device->CreateTexture2D(&depthBufferDesc, NULL, &m_DepthStencilBuffer);
   if (FAILED(result))return false;
-  
+
   //Initialize the description of the stencil state.
   /*
   Stencil buffer is used to limit the area of rendering
-  The simple combination of depth test and stencil modifiers make a vast number of effects possible 
-  (such as stencil shadow volumes, Two-Sided Stencil,[1] compositing, decaling, dissolves, fades, swipes, silhouettes, outline drawing or 
+  The simple combination of depth test and stencil modifiers make a vast number of effects possible
+  (such as stencil shadow volumes, Two-Sided Stencil,[1] compositing, decaling, dissolves, fades, swipes, silhouettes, outline drawing or
   highlighting of intersections between complex primitives)
   The most typical application is still to add shadows to 3D applications. It is also used for planar reflections.
   */
@@ -234,20 +235,153 @@ bool D3DClass::Initialize(const Vec2i& screenResolution,
   result = m_Device->CreateDepthStencilState(&depthStencilDesc, &m_DepthStencilState);
   if (FAILED(result)) return false;
   // Set the depth stencil state.
-  m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState, 1);
+  //The output-merger (OM) stage generates the final rendered pixel color using a combination of pipeline state
+  //The OM stage is the final step for determining which pixels are visible (with depth-stencil testing) and blending the final pixel colors.
+  m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState, 1); //Sets the depth-stencil state of the output-merger stage.
+  //Initailze the depth stencil view.
+  ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
+  //Set up the depth stencil view description.
+  depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; //A 32-bit z-buffer format that supports 24 bits for depth and 8 bits for stencil.
+  //Specifies how a depth-stencil resource will be accessed
+  depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D; //The resource will be accessed as a 2D texture.
+  //The index of the first mipmap level to use.
+  depthStencilViewDesc.Texture2D.MipSlice = 0; 
+  //Create the depth stencil view.
+  result = m_Device->CreateDepthStencilView(m_DepthStencilBuffer, &depthStencilViewDesc, &m_DepthStencilView);
+  if (FAILED(result))return false;
+  // Bind the render target view and depth stencil buffer to the output render pipeline.
+  m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
+  // Setup the raster description which will determine how and what polygons will be drawn.
+  //Specifies whether to enable line antialiasing; only applies if doing line drawing and MultisampleEnable is FALSE.
+  rasterDesc.AntialiasedLineEnable = false;
+  //Indicates triangles facing the specified direction are not drawn 
+  rasterDesc.CullMode = D3D11_CULL_BACK; //Do not draw triangles that are back-facing.
+  //Depth value added to a given pixel. For info about depth bias
+  rasterDesc.DepthBias = 0;
+  //Maximum depth bias of a pixel
+  rasterDesc.DepthBiasClamp = 0.0f;
+  //Enable clipping based on distance.
+  rasterDesc.DepthClipEnable = true;
+  //Determines the fill mode to use when rendering
+  rasterDesc.FillMode = D3D11_FILL_SOLID; //Fill the triangles formed by the vertices. Adjacent vertices are not drawn.
+  /* Determines if a triangle is front- or back-facing. If this parameter is TRUE, 
+  a triangle will be considered front-facing if its vertices are counter-clockwise 
+  on the render target and considered back-facing if they are clockwise. 
+  If this parameter is FALSE, the opposite is true.*/
+  rasterDesc.FrontCounterClockwise = false;
+  //Specifies whether to use the quadrilateral or alpha line anti-aliasing algorithm on multisample antialiasing (MSAA) render targets
+  rasterDesc.MultisampleEnable = false;
+  //Enable scissor-rectangle culling. All pixels outside an active scissor rectangle are culled.
+  rasterDesc.ScissorEnable = false;
+  rasterDesc.SlopeScaledDepthBias = 0.0f;
+  // Create the rasterizer state from the description we just filled out.
+  result = m_Device->CreateRasterizerState(&rasterDesc, &m_RasterState);
+  if (FAILED(result)) return false;
+  // Now set the rasterizer state.
+  m_DeviceContext->RSSetState(m_RasterState);
 
+  // Setup the viewport for rendering.
+  viewport.Width = (float)screenWidth;
+  viewport.Height = (float)screenHeight;
+  viewport.MinDepth = 0.0f;
+  viewport.MaxDepth = 1.0f;
+  viewport.TopLeftX = 0.0f;
+  viewport.TopLeftY = 0.0f;
+  // Create the viewport.
+  m_DeviceContext->RSSetViewports(1, &viewport);
+  // Setup the projection matrix.
+  fieldOfView = (float)DirectX::XM_PI / 4.0f;
+  screenAspect = (float)screenWidth / (float)screenHeight;
+  // Create the projection matrix for 3D rendering.
+  m_ProjectionMatrix = DirectX::XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
+  // Initialize the world matrix to the identity matrix.
+  m_WorldMatrix = DirectX::XMMatrixIdentity();
+  // Create an orthographic projection matrix for 2D rendering.
+  m_OrthoMatrix = DirectX::XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
 
-  return false;
+  return true;
 }
-
-void D3DClass::Shutdown()
+void D3DClass::BeginScene(float red, float green, float blue, float alpha)
 {
-}
-
-void D3DClass::BeginScene(float x, float y, float z, float w)
-{
+  // Setup the color to clear the buffer to.
+  float color[4] = {red, green, blue, alpha};
+  // Clear the back buffer.
+  m_DeviceContext->ClearRenderTargetView(m_RenderTargetView, color);
+  // Clear the depth buffer.
+  m_DeviceContext->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 void D3DClass::EndScene()
 {
+  // Present the back buffer to the screen since rendering is complete.
+  if (m_VsyncEnable)
+    // Lock to screen refresh rate.
+    m_SwapChain->Present(1, 0);
+  else
+    // Present as fast as possible.
+    m_SwapChain->Present(0, 0);
+}
+
+void D3DClass::GetVideoCardInfo(char * cardName, int& memory)
+{
+  strcpy_s(cardName, 128, m_VideoCardDescription);
+  memory = m_VideoCardMemory;
+}
+
+
+void D3DClass::Shutdown()
+{
+  // Before shutting down set to windowed mode or when you release the swap chain it will throw an exception.
+  if (m_SwapChain)
+  {
+    m_SwapChain->SetFullscreenState(false, NULL);
+  }
+
+  if (m_RasterState)
+  {
+    m_RasterState->Release();
+    m_RasterState = 0;
+  }
+
+  if (m_DepthStencilView)
+  {
+    m_DepthStencilView->Release();
+    m_DepthStencilView = 0;
+  }
+
+  if (m_DepthStencilState)
+  {
+    m_DepthStencilState->Release();
+    m_DepthStencilState = 0;
+  }
+
+  if (m_DepthStencilBuffer)
+  {
+    m_DepthStencilBuffer->Release();
+    m_DepthStencilBuffer = 0;
+  }
+
+  if (m_RenderTargetView)
+  {
+    m_RenderTargetView->Release();
+    m_RenderTargetView = 0;
+  }
+
+  if (m_DeviceContext)
+  {
+    m_DeviceContext->Release();
+    m_DeviceContext = 0;
+  }
+
+  if (m_Device)
+  {
+    m_Device->Release();
+    m_Device = 0;
+  }
+
+  if (m_SwapChain)
+  {
+    m_SwapChain->Release();
+    m_SwapChain = 0;
+  }
 }

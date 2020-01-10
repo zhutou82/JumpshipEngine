@@ -131,6 +131,7 @@ void JumpshipEngine::Update()
   MSG msg;
   while (GetMessage(&msg, NULL, 0, 0))
   {
+    GetGraphicsEngine.Frame();
     TranslateMessage(&msg);
     //checking input
     DispatchMessage(&msg);
@@ -148,6 +149,7 @@ void JumpshipEngine::Release()
 	EASY_FUNCTION(GetProfilerBLKColor(FUNCTION_COLOR));
   //create profiler file
   GetProfiler.DumpblockToFile();
+  GetGraphicsEngine.Shutdown();
 	LogDebug("Release");
 }
 
