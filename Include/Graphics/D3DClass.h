@@ -47,8 +47,8 @@ public:
                    float screenDepth, //The screenDepth and screenNear variables are the depth settings  
                    float screenNear); //for our 3D environment that will be rendered in the window.
    void Shutdown();
-   void BeginScene(float x, float y, float z, float w);
-   void EndScene();
+   void BeginScene(const Vec4f& color);
+   void EndScene(); 
    //A device is used to create resources and to enumerate the capabilities of a display adapter.
    ID3D11Device* GetDevice() const { return m_Device; }
    ID3D11DeviceContext* GetDeviceContext() const { return m_DeviceContext; }

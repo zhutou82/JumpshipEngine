@@ -159,6 +159,35 @@ void JumpshipEngine::CheckInput()
   {
     LogDebug("K");
   }
+  if (GetInput.IsKeyboardKeyPressed(VK_UP) || GetInput.IsKeyboardKeyPressed('W'))
+  {
+    GetCamera->SetPosition(GetCamera->GetPosition() + Vec4f(0, 0.1f, 0.0f, 0));
+  }
+  if (GetInput.IsKeyboardKeyPressed(VK_DOWN) || GetInput.IsKeyboardKeyPressed('S'))
+  {
+    GetCamera->SetPosition(GetCamera->GetPosition() + Vec4f(0, -0.1f, 0.0f, 0));
+  }
+  if (GetInput.IsKeyboardKeyPressed(VK_LEFT) || GetInput.IsKeyboardKeyPressed('A'))
+  {
+    GetCamera->SetPosition(GetCamera->GetPosition() + Vec4f(-0.1f, 0, 0.0f, 0));
+  }
+  if (GetInput.IsKeyboardKeyPressed(VK_RIGHT) || GetInput.IsKeyboardKeyPressed('D'))
+  {
+    GetCamera->SetPosition(GetCamera->GetPosition() + Vec4f(0.1f, 0, 0.0f, 0));
+  }
+  if (GetInput.IsKeyboardKeyPressed('Q'))
+  {
+    GetCamera->SetPosition(GetCamera->GetPosition() + Vec4f(0.f, 0.f, 0.1f, 0));
+  }
+  if (GetInput.IsKeyboardKeyPressed('E'))
+  {
+    GetCamera->SetPosition(GetCamera->GetPosition() + Vec4f(0.f, 0.f, -0.1f, 0));
+  }
+  if (GetInput.IsKeyboardKeyPressed('G'))
+  {
+    GetCamera->SetRosition(GetCamera->GetRotation() + Vec4f(1.f, 0.f, 0.f, 0));
+  }
+
   if (GetInput.IsKeyboardKeyDown('A'))
   {
     LogDebug("A");

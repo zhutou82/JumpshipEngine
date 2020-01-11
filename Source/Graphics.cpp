@@ -58,7 +58,7 @@ bool Graphics::Frame()
 bool Graphics::Render()
 {
   XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-  m_D3D->BeginScene(1.0f,0.1f,0.1f,1.f);
+  m_D3D->BeginScene(Vec4f(0.0f,0.1f,0.1f,1.f));
   // Generate the view matrix based on the camera's position.
   m_Camera->Render();
   viewMatrix = m_Camera->GetViewMatrix();
@@ -232,7 +232,9 @@ int Graphics::SetupD3DClass()
   if(!m_Camera) return false;
 
   // Set the initial position of the camera.
-  m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+  m_Camera->SetPosition(Vec4f(0.f, 0.0f, -5.0f, 0.f));
+  m_Camera->SetLookAt(Vec4f(0.f, 0.f, 1.f, 0.f));
+  m_Camera->SetUpVec(Vec4f(0.f, 1.f, 0.f, 0.f));
   // Create the model object.
   m_Model = JSNew(ModelClass);
   if (!m_Model) return false;

@@ -21,17 +21,24 @@ class Vec4f
   float Dot(const Vec4f& rhs) const;
   float Magnitude() const { return std::sqrt(Dot(*this)); }
   const __m128 GetMM() const {return m_XYZWMM;}
+  const float* GetPtr() const  { return m_XYZW; }
   friend bool operator==(const Vec4f& lhs, const Vec4f& rhs) { return _mm_movemask_ps(_mm_cmpeq_ps(lhs.m_XYZWMM, rhs.m_XYZWMM)) == 0x0F; }
+  float GetX() const { return m_XYZW[0]; }
+  float GetY() const { return m_XYZW[1]; }
+  float GetZ() const { return m_XYZW[2]; }
+  float GetW() const {return m_XYZW[3]; }
+
 
   friend std::ostream& operator<<(std::ostream& os, const Vec4f& rhs)
   {
     os << GLOBAL::BRACKET_O << rhs.m_XYZW[0] << GLOBAL::COMMA << rhs.m_XYZW[1] << GLOBAL::COMMA << rhs.m_XYZW[2] << GLOBAL::COMMA << rhs.m_XYZW[3] << GLOBAL::BRACKET_C;
     return os;
   }
-
+  union { __m128 m_XYZWMM; 
+          float m_XYZW[4];};
   private:
 
-  union { __m128 m_XYZWMM; float m_XYZW[4]; };
+  
 
 };
 

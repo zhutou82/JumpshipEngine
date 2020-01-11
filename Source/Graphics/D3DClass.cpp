@@ -301,12 +301,10 @@ bool D3DClass::Initialize(const Vec2i& screenResolution,
 
   return true;
 }
-void D3DClass::BeginScene(float red, float green, float blue, float alpha)
+void D3DClass::BeginScene(const Vec4f& color)
 {
-  // Setup the color to clear the buffer to.
-  float color[4] = {red, green, blue, alpha};
   // Clear the back buffer.
-  m_DeviceContext->ClearRenderTargetView(m_RenderTargetView, color);
+  m_DeviceContext->ClearRenderTargetView(m_RenderTargetView, color.GetPtr());
   // Clear the depth buffer.
   m_DeviceContext->ClearDepthStencilView(m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

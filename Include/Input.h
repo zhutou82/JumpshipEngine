@@ -16,6 +16,7 @@ public:
   constexpr static const uint8_t HIGH_ORDER_BIT = 0x80;
   constexpr static const uint8_t LOW_ORDER_BIT = 0x01;
 
+
 	bool IsKeyboardKeyDown(int8_t key, bool previousFrame = false) const;
   bool IsKeyboardKeyPressed(int8_t key, bool previousFrame = false);
   bool IsKeyboardKeyToggled(int8_t key, bool previousFrame = false) const;

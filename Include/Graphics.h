@@ -13,6 +13,7 @@ constexpr const float SCREEN_DEPTH = 1000.0f;
 constexpr const float SCREEN_NEAR = 0.1f;
 
 #define GetGraphicsEngine Singleton<Graphics>::GetInstance()
+#define GetCamera GetGraphicsEngine.GetCameraClass()
 class Graphics : public Singleton<Graphics>
 {
   public:
@@ -29,6 +30,8 @@ class Graphics : public Singleton<Graphics>
   bool Frame();
   bool Render();
   
+  CameraClass * GetCameraClass() const {return m_Camera;}
+
   private:
 
   static constexpr const char* FailedToCreateWindowMsg = "Call to CreateWindow failed!";

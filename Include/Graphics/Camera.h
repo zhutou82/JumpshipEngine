@@ -9,17 +9,26 @@ public:
   CameraClass() {};
   CameraClass(const CameraClass&) = delete;
   ~CameraClass() {}
-  void SetPosition(float x, float y, float z);
-  void SetRotation(float x, float y, float z);
+  void SetPosition(const Vec4f& pos) { m_Position = pos; }
+  void SetRosition(const Vec4f& rot) { m_Rotation = rot;}
+  const Vec4f& GetPosition() const { return m_Position; }
+  const Vec4f& GetRotation() const { return m_Rotation; }
 
-  const XMFLOAT3& GetPosition() const {return XMFLOAT3(m_PositionX, m_PositionY, m_PositionZ);}
-  const XMFLOAT3& GetRotation() const {return XMFLOAT3(m_RotationX, m_RotationY, m_RotationZ);}
+  void SetUpVec(const Vec4f& up) { m_UpVec = up; }
+  void SetLookAt(const Vec4f& lookat) {m_LookAtVec = lookat;}
+  const Vec4f& GetUpVec() const {return m_UpVec;}
+  const Vec4f& GetLookAt() const {return m_LookAtVec;}
 
   void Render();
-  XMMATRIX GetViewMatrix() const {return m_ViewMatrix; }
-
+  const XMMATRIX& GetViewMatrix() const {return m_ViewMatrix; }
+  
+  void Move(const Vec4f& vec) { m_ViewMatrix  *= XMMatrixTranslation(vec.GetX(), vec.GetY(), vec.GetZ()); }
+  
 private:
-  float m_PositionX = 0.f, m_PositionY = 0.f, m_PositionZ = 0.f;
-  float m_RotationX = 0.f, m_RotationY = 0.f, m_RotationZ = 0.f;
   XMMATRIX m_ViewMatrix;
+  Vec4f m_Position;
+  Vec4f m_Rotation;
+  Vec4f m_UpVec;
+  Vec4f m_ForwardVec;
+  Vec4f m_LookAtVec;
 };

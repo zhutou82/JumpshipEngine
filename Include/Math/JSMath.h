@@ -1,4 +1,4 @@
-#pragma once
+  #pragma once
 #include "Common/CommonMath.h"
 #include "Math/Vec2.h"
 #include "Math/Mat2.h"
