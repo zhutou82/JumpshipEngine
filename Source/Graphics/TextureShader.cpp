@@ -1,10 +1,20 @@
 #include "Graphics/TextureShader.h"
+#include "JumpshipEngine.h"
 
 bool TextShaderClass::Initialize(ID3D11Device * device, HWND hwnd)
 {
   bool result = false;
+
+  //std::string textureFolderPath = GetEngine.GetRecourceFolderPath() + g_EngineConfigFolderPathVec[FolderPath_Index::SHADER_FOLDER];
+
+  //std::string textureVsFileName = textureFolderPath +
+  //                                g_EngineConfigFileNameVec[FileName_Index::TEXTURE_SHADER_FILENAME] + 
+  //                                GLOBAL::VERTEXT_SHADER_FILE_EXTENSION;
+  //std::string texturePsFileName = textureFolderPath +
+  //                                g_EngineConfigFileNameVec[FileName_Index::TEXTURE_SHADER_FILENAME] + 
+  //                                GLOBAL::PIXEL_SHADER_FILE_EXTENSION;
   // Initialize the vertex and pixel shaders.
-  result = InitializeShader(device, hwnd, L"Resource/Shader/color.vs", L"Resource/Shader/color.ps");
+  result = InitializeShader(device, hwnd, "Resource/Shader/texture.vs", "Resource/Shader/texture.ps");
   if (!result) return result;
   return result;
 }
@@ -19,20 +29,22 @@ bool TextShaderClass::Render(ID3D11DeviceContext * deviceContext,
                               int indexCount,
                               XMMATRIX worldMatrix,
                               XMMATRIX viewMatrix, 
-                              XMMATRIX projectionMatrix)
+                              XMMATRIX projectionMatrix,
+                              ID3D11ShaderResourceView* texture)
 {
   // Set the shader parameters that it will use for rendering.
   bool result = SetShaderParameters(deviceContext, 
                                     worldMatrix, 
                                     viewMatrix, 
-                                    projectionMatrix);
+                                    projectionMatrix,
+                                    texture);
   if (!result) return false;
   // Now render the prepared buffers with the shader.
   RenderShader(deviceContext, indexCount);
   return true;
 }
 
-bool TextShaderClass::InitializeShader(ID3D11Device * device, HWND hwnd, const wchar_t * vsFileName, const wchar_t *psFileName)
+bool TextShaderClass::InitializeShader(ID3D11Device * device, HWND hwnd, const char * vsFileName, const char*psFileName)
 {
   HRESULT result = JSNULL;
   ID3D10Blob* errorMessage;
@@ -40,12 +52,17 @@ bool TextShaderClass::InitializeShader(ID3D11Device * device, HWND hwnd, const w
   ID3D10Blob* pixelShaderBuffer;
   D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
   D3D11_BUFFER_DESC matrixBufferDesc;
+  //Hold the description of the texture sampler
+  D3D11_SAMPLER_DESC samplerDesc; 
+  size_t cSize = strlen(vsFileName) + 1;
+  wchar_t tmpShaderFile[128];
+  mbstowcs(tmpShaderFile, vsFileName, cSize);
   // Initialize the pointers this function will use to null.
   errorMessage = 0;
   vertexShaderBuffer = 0;
   pixelShaderBuffer = 0;
   // Compile the vertex shader code.
-  result = D3DCompileFromFile(vsFileName, 
+  result = D3DCompileFromFile(tmpShaderFile,
                               NULL, 
                               NULL, 
                               "ColorVertexShader", 
@@ -59,20 +76,23 @@ bool TextShaderClass::InitializeShader(ID3D11Device * device, HWND hwnd, const w
     // If the shader failed to compile it should have writen something to the error message.
     if (errorMessage)
     {
-      OutputShaderErrorMessage(errorMessage, hwnd, vsFileName);
+      OutputShaderErrorMessage(errorMessage, hwnd, tmpShaderFile);
     }
     // If there was  nothing in the error message then it simply could not find the shader file itself.
     else
     {
-      MessageBox(hwnd, (LPCSTR)vsFileName, "Missing Shader File", MB_OK);
+      MessageBox(hwnd, vsFileName, FailedToLoadShaderFile, MB_OK);
     }
     return false;
   }
+  memset(tmpShaderFile, 0, 255);
+  cSize = strlen(psFileName) + 1;
+  mbstowcs(tmpShaderFile, psFileName, cSize);
   // Compile the pixel shader code.
-  result = D3DCompileFromFile(psFileName, 
+  result = D3DCompileFromFile(tmpShaderFile,
                               NULL, 
                               NULL, 
-                              "ColorPixelShader", 
+                              "TexturePixelShader", 
                               "ps_5_0", 
                               D3D10_SHADER_ENABLE_STRICTNESS, 
                               0,
@@ -83,12 +103,12 @@ bool TextShaderClass::InitializeShader(ID3D11Device * device, HWND hwnd, const w
     // If the shader failed to compile it should have writen something to the error message.
     if (errorMessage)
     {
-      OutputShaderErrorMessage(errorMessage, hwnd, psFileName);
+      OutputShaderErrorMessage(errorMessage, hwnd, tmpShaderFile);
     }
     // If there was nothing in the error message then it simply could not find the file itself.
     else
     {
-      MessageBox(hwnd, (LPCSTR)psFileName, "Missing Shader File", MB_OK);
+      MessageBox(hwnd, psFileName, FailedToLoadShaderFile , MB_OK);
     }
     return false;
   }
@@ -121,9 +141,9 @@ bool TextShaderClass::InitializeShader(ID3D11Device * device, HWND hwnd, const w
   //This value must be 0 for an element that contains per-vertex data (the slot class is set to D3D11_INPUT_PER_VERTEX_DATA).
   polygonLayout[0].InstanceDataStepRate = 0;
 
-  polygonLayout[1].SemanticName = "COLOR";
+  polygonLayout[1].SemanticName = "TEXCOORD";
   polygonLayout[1].SemanticIndex = 0;
-  polygonLayout[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+  polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
   polygonLayout[1].InputSlot = 0;
   polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
   polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
@@ -154,13 +174,41 @@ bool TextShaderClass::InitializeShader(ID3D11Device * device, HWND hwnd, const w
   // Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
   result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_MatrixBuffer);
   if (FAILED(result)) return false;
+  // Create a texture sampler state description, texture sampling is the act of retrieving data from a texture.
+  //Filtering method to use when sampling a texture
+  samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; 
+  //Method to use for resolving a u texture coordinate that is outside the 0 to 1 range
+  samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+  //Method to use for resolving a v texture coordinate that is outside the 0 to 1 range
+  samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+  //Method to use for resolving a w texture coordinate that is outside the 0 to 1 range
+  samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+  //Offset from the calculated mipmap level. For example, if Direct3D calculates that a texture should be sampled at mipmap level 3 and MipLODBias is 2, then the texture will be sampled at mipmap level 5.
+  samplerDesc.MipLODBias = 0.0f;
+  //Clamping value used if D3D11_FILTER_ANISOTROPIC or D3D11_FILTER_COMPARISON_ANISOTROPIC is specified in Filter. 
+  samplerDesc.MaxAnisotropy = 1;
+  //A function that compares sampled data against existing sampled data.
+  samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+  samplerDesc.BorderColor[0] = 0;
+  samplerDesc.BorderColor[1] = 0;
+  samplerDesc.BorderColor[2] = 0;
+  samplerDesc.BorderColor[3] = 0;
+  //Lower end of the mipmap range to clamp access to, where 0 is the largest and most detailed mipmap level and any level higher than that is less detailed.
+  samplerDesc.MinLOD = 0;
+  //Upper end of the mipmap range to clamp access to
+  samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+  // Create the texture sampler state.
+  result = device->CreateSamplerState(&samplerDesc, &m_SampleState);
+  if (FAILED(result)) return false;
+  
 
   return true;
 }
 bool TextShaderClass::SetShaderParameters(ID3D11DeviceContext * deviceContext, 
                                            XMMATRIX worldMatrix, 
                                            XMMATRIX viewMatrix, 
-                                           XMMATRIX projectionMatrix)
+                                           XMMATRIX projectionMatrix,
+                                           ID3D11ShaderResourceView* texture)
 {
   HRESULT result = JSNULL;
   D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -188,6 +236,8 @@ bool TextShaderClass::SetShaderParameters(ID3D11DeviceContext * deviceContext,
   // Finanly set the constant buffer in the vertex shader with the updated values.
   //Sets the constant buffers used by the vertex shader pipeline stage.
   deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_MatrixBuffer);
+  // Set shader texture resource in the pixel shader.
+  deviceContext->PSSetShaderResources(0, 1, &texture);
   return true;
 }
 
@@ -198,6 +248,8 @@ void TextShaderClass::RenderShader(ID3D11DeviceContext * deviceContext, int inde
   // Set the vertex and pixel shaders that will be used to render this triangle.
   deviceContext->VSSetShader(m_VertexShader, NULL, 0);
   deviceContext->PSSetShader(m_PixelShader, NULL, 0);
+  // Set the sampler state in the pixel shader.
+  deviceContext->PSSetSamplers(0, 1, &m_SampleState);
   // Render the triangle.
   deviceContext->DrawIndexed(indexCount, 0, 0);
 }
@@ -228,6 +280,13 @@ void TextShaderClass::ShutdownShader()
     m_VertexShader->Release();
     m_VertexShader = 0;
   }
+  if (m_SampleState)
+  {
+    m_SampleState->Release();
+    m_SampleState = 0;
+  }
+  
+
 }
 
 void TextShaderClass::OutputShaderErrorMessage(ID3D10Blob *errorMessage, HWND hwnd, const wchar_t* shaderFilename)

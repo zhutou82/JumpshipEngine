@@ -306,6 +306,11 @@ std::cout << tmp << std::endl; \
   }
 }
 
+using namespace std::chrono;
+
+#define START start = system_clock::now();
+#define END std::cout << duration_cast<seconds>(system_clock::now() - start).count() << "s\n";
+
 
 namespace JSMultithreading
 {
@@ -447,10 +452,6 @@ namespace JSMultithreading
     //cv.notify_all();
   }
 
- using namespace std::chrono;
-
-#define START start = system_clock::now();
-#define END std::cout << duration_cast<seconds>(system_clock::now() - start).count() << "s\n";
 
 
 
@@ -516,10 +517,42 @@ namespace JSMultithreading
     //std::future<int> futureObj = promiseObj.get_future();
     //std::thread t(initializer, &promiseObj);
     //std::cout << futureObj.get() << std::endl;
-    //t.join();
+    //t.join(); 
     
   }
 
 }
 
 
+namespace JSMemoeryAllocation
+{
+
+  void TestMemoeryAllocation()
+  {
+    system_clock::time_point start;
+    int n = 10000000;
+    START
+    for (int i = 0; i < n; ++i)
+    {
+      Mat4f *tmp = new Mat4f;
+      *tmp = Mat4f();
+      delete tmp;
+    }
+    //for (int i = 0; i < n; ++i)
+    //{
+    //  Mat4f *tmp = new Mat4f;
+    //  *tmp = Mat4f();
+    //  delete tmp;
+    //}
+    //for (int i = 0; i < n; ++i)
+    //{
+    //  Mat4f *tmp = new Mat4f;
+    //  *tmp = Mat4f();
+    //  delete tmp;
+    //}
+    END
+
+  }
+
+
+}

@@ -3,6 +3,8 @@
 #include "Graphics.h"
 #include "JSMathTestcases.h"
 
+
+
 JumpshipEngine::JumpshipEngine()
 : 
 m_RecourseFolderPath("Resource/"),
@@ -30,7 +32,10 @@ int JumpshipEngine::Initialize(_In_ HINSTANCE hInstance,
                                                         nCmdShow, 
                                                         JSMath::StringToVec2i(g_EngineConfigGraphicsEngineVec[GraphicsEngine_Index::WindowResolution]),
                                                         g_EngineConfigGraphicsEngineVec[GraphicsEngine_Index::WindowName],
-                                                        std::stoi(g_EngineConfigGraphicsEngineVec[GraphicsEngine_Index::WindowFullScreen])))
+                                                        GetEngine.GetRecourceFolderPath() + g_EngineConfigFolderPathVec[FolderPath_Index::SHADER_FOLDER],
+                                                        std::stoi(g_EngineConfigGraphicsEngineVec[GraphicsEngine_Index::WindowFullScreen]),
+                                                        std::stoi(g_EngineConfigGraphicsEngineVec[GraphicsEngine_Index::WindowsShow]))
+                                                        )
   {
     return GLOBAL::JSPFAILED;
   }
@@ -51,6 +56,8 @@ int JumpshipEngine::Initialize(_In_ HINSTANCE hInstance,
   EASY_END_BLOCK*/
   //practicing mulithreading
   //JSMultithreading::TestJSMultithreading(); 
+  
+  //JSMemoeryAllocation::TestMemoeryAllocation();
 #define TEST_3
 #ifdef TEST_2                
 

@@ -1,9 +1,12 @@
 #include "Graphics/Model.h"
 
-bool ModelClass::Initialize(ID3D11Device * device)
+bool ModelClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const char* textureFilename)
 {
   // Initialize the vertex and index buffers.
   bool result = InitializeBuffers(device);
+  if (!result) return false;
+  // Load the texture for this model.
+  result = LoadTexture(device, deviceContext, textureFilename);
   if (!result) return false;
   return true;
 }
@@ -29,13 +32,16 @@ bool ModelClass::InitializeBuffers(ID3D11Device * device)
   
   // Load the vertex array with data.
   vertices[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f);  // Bottom left.
-  vertices[0].color = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+  vertices[0].texture = XMFLOAT2(0.0f, 1.0f);
+  //vertices[0].color = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 
   vertices[1].position = XMFLOAT3(0.0f, 1.0f, 0.0f);  // Top middle.
-  vertices[1].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+  vertices[1].texture = XMFLOAT2(0.5f, 0.0f);
+  //vertices[1].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 
   vertices[2].position = XMFLOAT3(1.0f, -1.0f, 0.0f);  // Bottom right.
-  vertices[2].color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+  vertices[2].texture = XMFLOAT2(1.0f, 1.0f);
+  //vertices[2].color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 
   // Load the index array with data.
   indices[0] = 0;  // Bottom left.
@@ -99,10 +105,25 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext * deviceContext)
   // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
   deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
+
+bool ModelClass::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const char* filename)
+{
+  bool result;
+  // Create the texture object.
+  m_Texture = new TextureClass;
+  if (!m_Texture) return false;
+  // Initialize the texture object.
+  result = m_Texture->Initialize(device, deviceContext, filename);
+  if (!result) return false;
+  return true;
+}
+
 void ModelClass::Shutdown()
 {
   // Shutdown the vertex and index buffers.
   ShutdownBuffers();
+  // Release the model texture.
+  ReleaseTexture();
 }
 void ModelClass::ShutdownBuffers()
 {
@@ -118,4 +139,9 @@ void ModelClass::ShutdownBuffers()
     m_VertexBuffer->Release();
     m_VertexBuffer = 0;
   }
+}
+void ModelClass::ReleaseTexture()
+{
+  m_Texture->Shutdown();
+  JSDelete(m_Texture);
 }

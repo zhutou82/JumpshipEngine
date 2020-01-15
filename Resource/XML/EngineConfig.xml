@@ -3,16 +3,24 @@
 <FolderPath>
 <Profiler>ProfilerOutput/</Profiler>
 <Image>Image/</Image>
+<SHADER>Shader/</SHADER>
 </FolderPath>
 
 <FileName>
 <Profiler>version1</Profiler>
+<TextureShader>texture</TextureShader>
+<ColorShader>color</ColorShader>
 </FileName>
+
+<ImageFileName>
+<Logo>JumpShip</Logo>
+</ImageFileName>
 
 <GraphicsEngine>
 <WindowName>JSEngine</WindowName>
 <WindowResolution>800,600</WindowResolution>
 <WindowFullScreen>0</WindowFullScreen>
+<WindowsShow>0</WindowsShow>
 </GraphicsEngine>
 
 

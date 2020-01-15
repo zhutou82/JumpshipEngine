@@ -6,6 +6,8 @@
 #include "Graphics/Camera.h"
 #include "Graphics/ColorShader.h"
 #include "Graphics/Model.h"
+#include "Graphics/TextureShader.h"
+#include "Common/MemoryManager.h"
 
 constexpr const bool FULL_SCREEN = false;
 constexpr const bool VSYNC_ENABLED = true;
@@ -23,7 +25,9 @@ class Graphics : public Singleton<Graphics>
                   _In_ int nCmdShow,
                   const Vec2i& windowResolution, 
                   const std::string& windowName,
-                  bool isFullScreen);
+                  const std::string& shaderFolderPath,
+                  bool isFullScreen,
+                  bool isShowWindow);
   void AllocateConsole();
   void PopupMessageBox();
   void Shutdown();
@@ -45,18 +49,21 @@ class Graphics : public Singleton<Graphics>
   m_D3D(JSNULL),
   m_Camera(JSNULL),
   m_Model(JSNULL),
-  m_ColorShader(JSNULL)
+  m_ColorShader(JSNULL),
+  m_TextureShader(JSNULL)
   {}
   int CreateWindows();
   int SetupD3DClass();
   Vec2i GetDesktopResolution();
   //window creation memebers
   std::string m_WindowsName;
+  std::string m_ShaderFolderPath;
   Vec2i m_WindowResulution;
   HINSTANCE m_hInstance;
   LPSTR m_lpCmdLine;
   int m_nCmdShow;
   bool m_IsFullScreen;
+  bool m_IsShowWindow;
 
   D3DClass* m_D3D;
   HWND m_HWND;
@@ -64,4 +71,5 @@ class Graphics : public Singleton<Graphics>
   CameraClass* m_Camera;
   ModelClass* m_Model;
   ColorShaderClass* m_ColorShader;
+  TextShaderClass* m_TextureShader;
 };

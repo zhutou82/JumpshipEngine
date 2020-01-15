@@ -30,6 +30,11 @@ namespace JSMultithreading
   void TestJSMultithreading();
 }
 
+namespace JSMemoeryAllocation
+{
+  void TestMemoeryAllocation();
+}
+
 //#include <iostream>
 //#include <vector>
 //#include <functional>

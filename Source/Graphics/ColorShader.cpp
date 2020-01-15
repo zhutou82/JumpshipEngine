@@ -44,8 +44,13 @@ bool ColorShaderClass::InitializeShader(ID3D11Device * device, HWND hwnd, const 
   errorMessage = 0;
   vertexShaderBuffer = 0;
   pixelShaderBuffer = 0;
+  const char* fileName = "Resource/Shader/color.vs";
+  const size_t cSize = strlen(fileName) + 1;
+  wchar_t wc[128];
+  mbstowcs(wc, fileName, cSize);
+
   // Compile the vertex shader code.
-  result = D3DCompileFromFile(vsFileName, 
+  result = D3DCompileFromFile(wc,
                               NULL, 
                               NULL, 
                               "ColorVertexShader", 

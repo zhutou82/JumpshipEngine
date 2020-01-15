@@ -1,14 +1,14 @@
 #include "Graphics.h"
 
 
-
-
 int Graphics::Initialize(HINSTANCE hInstance, 
                           LPSTR lpCmdLine, 
                           int nCmdShow, 
                           const Vec2i & windowResolution, 
                           const std::string & windowName, 
-                          bool isFullScreen)
+                          const std::string & shaderFolderPath,
+                          bool isFullScreen,
+                          bool isShowWindow)
 {
   m_hInstance = hInstance;
   m_lpCmdLine = lpCmdLine;
@@ -16,6 +16,8 @@ int Graphics::Initialize(HINSTANCE hInstance,
   m_WindowsName = windowName;
   m_WindowResulution = windowResolution;
   m_IsFullScreen = isFullScreen;
+  m_ShaderFolderPath = shaderFolderPath;
+  m_IsShowWindow = isShowWindow;
   //create window
   if(GLOBAL::JSPFAILED == CreateWindows()) return GLOBAL::JSPFAILED;
 
@@ -46,6 +48,9 @@ void Graphics::Shutdown()
   JSDelete(m_Camera);
   m_D3D->Shutdown();
   JSDelete(m_D3D);
+  // Release the texture shader object.
+  m_TextureShader->Shutdown();
+  JSDelete(m_TextureShader);
 }
 
 bool Graphics::Frame()
@@ -67,8 +72,11 @@ bool Graphics::Render()
   // Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
   m_Model->Render(m_D3D->GetDeviceContext());
   // Render the model using the color shader.
-  bool result = m_ColorShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
-  if (!result) return false;
+/*  bool result = m_ColorShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+  if (!result) return false*/;
+  // Render the model using the texture shader.
+  bool result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture());
+  if (!result)return false;
   m_D3D->EndScene();
   return true;
 }
@@ -155,7 +163,7 @@ int Graphics::CreateWindows()
                ErrorWindowCaption,
                MB_ICONERROR);
     return GLOBAL::JSPFAILED;
-  }
+  } 
 
   // The parameters to CreateWindow explained:
   // szWindowClass: the name of the application
@@ -206,9 +214,11 @@ int Graphics::CreateWindows()
 
   // hWnd: the value returned from CreateWindow
 // nCmdShow: the fourth parameter from WinMain
-  ShowWindow(m_HWND, m_nCmdShow);
-  UpdateWindow(m_HWND);
-
+  if (m_IsShowWindow)
+  {
+    ShowWindow(m_HWND, m_nCmdShow);
+    UpdateWindow(m_HWND);
+  }
   return GLOBAL::JSPSUCCESSED;
 }
 
@@ -239,22 +249,35 @@ int Graphics::SetupD3DClass()
   m_Model = JSNew(ModelClass);
   if (!m_Model) return false;
   // Initialize the model object.
-  result = m_Model->Initialize(m_D3D->GetDevice());
+  //result = m_Model->Initialize(m_D3D->GetDevice());
+  result = m_Model->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), "Resource/Image/stone01.tga");
   if (!result) 
   {
     MessageBox(m_HWND, FailedToIniModelObject, ErrorWindowCaption, MB_OK);
     return false;
   }
-  // Create the color shader object.
-  m_ColorShader = JSNew(ColorShaderClass);
-  if(!m_ColorShader) return false;
+  //// Create the color shader object.
+  //m_ColorShader = JSNew(ColorShaderClass);
+  //if(!m_ColorShader) return false;
+  //// Initialize the color shader object.
+  //result = m_ColorShader->Initialize(m_D3D->GetDevice(), m_HWND);
+  //if (!result)
+  //{
+  //  MessageBox(m_HWND, FailedToInitColorShader, ErrorWindowCaption, MB_OK);
+  //  return false;
+  //}
+
+  // Create the texture shader object.
+  m_TextureShader = new TextShaderClass;
+  if (!m_TextureShader) return false;
   // Initialize the color shader object.
-  result = m_ColorShader->Initialize(m_D3D->GetDevice(), m_HWND);
+  result = m_TextureShader->Initialize(m_D3D->GetDevice(), m_HWND);
   if (!result)
   {
     MessageBox(m_HWND, FailedToInitColorShader, ErrorWindowCaption, MB_OK);
     return false;
   }
+
   return result;
 }
 

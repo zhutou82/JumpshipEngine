@@ -29,14 +29,14 @@ namespace GLOBAL
    //D3D creation
    constexpr const int MB_IN_BYTES = 1048576;
    constexpr const int DEFAULT_SIZE_OF_ADAPTER_DESCRIPTION = 128;
+   constexpr const char* VERTEXT_SHADER_FILE_EXTENSION = "vs";
+   constexpr const char* PIXEL_SHADER_FILE_EXTENSION = "ps";
+
 
 
 }
 #define JSNULL NULL
 
-//
-#define JSNew(x) \
-new x;
 
 #define JSNewArray(x, y) \
 new x[y]
