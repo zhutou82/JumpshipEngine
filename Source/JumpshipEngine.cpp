@@ -2,6 +2,7 @@
 #include "Input.h"
 #include "Graphics.h"
 #include "JSMathTestcases.h"
+#include "Common/MemoryManager.h"
 
 
 
@@ -58,6 +59,21 @@ int JumpshipEngine::Initialize(_In_ HINSTANCE hInstance,
   //JSMultithreading::TestJSMultithreading(); 
   
   //JSMemoeryAllocation::TestMemoeryAllocation();
+  GetMemoryManager.Init();
+
+  int * i = reinterpret_cast<int*>(GetMemoryManager.AllocateMemory(sizeof(int)));
+  int * i2 = reinterpret_cast<int*>(GetMemoryManager.AllocateMemory(sizeof(int)));
+  int * i3 = reinterpret_cast<int*>(GetMemoryManager.AllocateMemory(sizeof(int)));
+  *i = 10;
+  *i2 = 20;
+  *i3 = 30;
+  GetMemoryManager.DeallocateMemory(i);
+  GetMemoryManager.DeallocateMemory(i2);
+  GetMemoryManager.DeallocateMemory(i3);
+
+  Mat4f* m = reinterpret_cast<Mat4f*>(GetMemoryManager.AllocateMemory(sizeof(Mat4f)));
+  GetMemoryManager.DeallocateMemory(m);
+
 #define TEST_3
 #ifdef TEST_2                
 

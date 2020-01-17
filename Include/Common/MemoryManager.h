@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include "Common\GlobalVariables.h"
 #include "Common/SingletonBaseClass.h"
+#include <cstddef>
+#include <iostream>
 #include <math.h>
+#include <vector>
+#include <map>
 
 #define JSNew(x) \
 new x;           \
@@ -16,33 +20,43 @@ std::cout << "File Name: " << __FILE__ << GLOBAL::NEW_LINE   \
 class MemoeryManager : public Singleton<MemoeryManager>
 {
   public:
+  typedef char JSBYTE;
 
-  static const size_t TOTAL_MEMORY_TO_ALLOCATE_FOR_ENGINE = 1024;
-  static const size_t POOL_SIZE = 32;
+  static const size_t NUMBER_OF_PAGES = 2;
+  static const size_t PAGE_SIZE = 1024;
+  static const size_t PADDING_SIZE = 8;
+  static const size_t MAGIC_NUMBER = 1111;
 
   friend class Singleton<MemoeryManager>;
-  struct FreeStore
+  struct AllocationHeader
   {
-    FreeStore * next;
-    bool isFree;
+    JSBYTE* startAddr;
+    size_t size;
   };
-
+  struct PageHeader
+  {
+    JSBYTE* startAddr;
+    JSBYTE* endAddr;
+    JSBYTE* freeAddr;
+    bool isFree;
+    std::vector<AllocationHeader> allocationHeaderVec;
+  };
   void Init();
   void * AllocateMemory(size_t size);
   void DeallocateMemory(void * toDelete);
 
   private:
-  MemoeryManager() :
-  m_NumOfBlocks(TOTAL_MEMORY_TO_ALLOCATE_FOR_ENGINE/POOL_SIZE)
+  MemoeryManager()
   {};
   ~MemoeryManager();
-  FreeStore * m_FreeHead;
-  FreeStore * m_Head;
-  int m_NumOfBlocks;
+  std::vector<PageHeader> m_PageHeaderAllocationVec;
+  size_t m_realPageSize;
+  JSBYTE * m_FreeAllocAddrInPage;
+  JSBYTE * m_Head;
 
 };
 
-void * operator new (size_t size);
-void* operator new[](size_t size);
-void operator delete(void* toDelete);
-void operator delete[](void* toDelete);
+//void * operator new (size_t size);
+//void* operator new[](size_t size);
+//void operator delete(void* toDelete);
+//void operator delete[](void* toDelete);
