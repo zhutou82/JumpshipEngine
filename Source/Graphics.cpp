@@ -39,8 +39,8 @@ void Graphics::AllocateConsole()
 void Graphics::Shutdown()
 {
   // Release the color shader object.
-  m_ColorShader->Shutdown();
-  JSDelete(m_ColorShader);
+  //m_ColorShader->Shutdown();
+  //JSDelete(m_ColorShader);
   // Release the model object.
   m_Model->Shutdown();
   JSDelete(m_Model);

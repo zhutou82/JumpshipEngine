@@ -1,5 +1,6 @@
 #pragma once
 #include "Common/SingletonBaseClass.h"
+#include "Common/GlobalVariables.h"
 #include "JumpshipEngine.h"
 #include <stdio.h>
 #include <string.h>
@@ -8,6 +9,7 @@
 #include <fstream>
 #include <string>
 #include <assert.h> 
+#include "JumpshipEngine.h"
 
 
 class BinaryFile
@@ -30,8 +32,20 @@ public:
   friend class Singleton<Binserializer>;
   static constexpr const char* DATA_FILE_NAME = "Engine.dat";
   static constexpr const char* BINARY_WRITING_MODE = "wb";
-  static constexpr const char* BINARY_READING_MODE = "wb";
-  void Read();
+  static constexpr const char* BINARY_READING_MODE = "rb";
+  void StartReading() { m_InputFile = fopen(DATA_FILE_NAME, BINARY_READING_MODE); assert(m_InputFile != JSNULL); }
+  template <typename T>
+  void Read(std::vector<T>& vec, int max_size)
+  {
+    assert(vec.size() == max_size);
+    for (size_t i = 0; i < max_size; ++i)
+    {
+      T tmpValue;
+      Serialize(tmpValue);
+      vec.push_back(tmpValue);
+    }
+  }
+  void EndReading() { fclose(m_InputFile); }
   void Write();
   template<typename T>
   void WriteToFile(T value, size_t size = 1) { fwrite(&value, sizeof(char), size, m_OutputFile); }

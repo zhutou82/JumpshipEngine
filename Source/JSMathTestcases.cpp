@@ -12,6 +12,7 @@
 #include <functional>
 #include <stdexcept>
 #include "ThreadPool.h"
+#include "Common/MemoryManager.h"
 
 //template <typename T>
 //bool(*vec2Testcases[])(const T& t1, const T& t2);
@@ -529,9 +530,13 @@ namespace JSMemoeryAllocation
 
   void TestMemoeryAllocation()
   {
+    g_MemoryManager.Init();
     system_clock::time_point start;
-    int n = 10000000;
+    int n = 1000000;
     START
+    //int * i  = reinterpret_cast<int*>(GetMemoryManager.AllocateMemory(sizeof(int)));
+    //GetMemoryManager.DeallocateMemory(i);
+
     for (int i = 0; i < n; ++i)
     {
       Mat4f *tmp = new Mat4f;

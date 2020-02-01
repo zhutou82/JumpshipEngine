@@ -16,7 +16,7 @@ std::cout << "File Name: " << __FILE__ << GLOBAL::NEW_LINE   \
           << "Type: " << #x  << GLOBAL::NEW_LINE                  \
           << "Allocation Size: " << sizeof(x) << " BYTE(s) " << GLOBAL::NEW_LINE ;
 
-#define GetMemoryManager Singleton<MemoeryManager>::GetInstance()
+#define g_MemoryManager Singleton<MemoeryManager>::GetInstance()
 class MemoeryManager : public Singleton<MemoeryManager>
 {
   public:

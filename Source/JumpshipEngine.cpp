@@ -3,8 +3,7 @@
 #include "Graphics.h"
 #include "JSMathTestcases.h"
 #include "Common/MemoryManager.h"
-
-
+#include "Serializer/BinSerializer.h"
 
 JumpshipEngine::JumpshipEngine()
 : 
@@ -14,33 +13,30 @@ m_EngineConfigXMLFile (m_XMLFolderPath + "EngineConfig.xml")
 {
 
 }
-
 int JumpshipEngine::Initialize(_In_ HINSTANCE hInstance,
-                                _In_ LPSTR lpCmdLine,
-                                _In_ int nCmdShow)
-{
+                               _In_ LPSTR lpCmdLine,
+                               _In_ int nCmdShow)
+{ 
   EASY_FUNCTION(GetProfilerBLKColor(FUNCTION_COLOR));
 	LogDebug("Initialize");
 	LogDebug("Serializering data");
 	LoadEnginePathConfig();
-  GetThreadPool.InitWorkers();
-	GetProfiler.Init(g_EngineConfigFolderPathVec[FolderPath_Index::PROFILER_FOLDERER],
-                   g_EngineConfigFileNameVec[FileName_Index::PROFILER_FILENAME]);
-
+  GetThreadPool.InitWorkers();  
+	g_Profiler.Init(g_EngineConfigstringConfigVec[stringConfig_Index::PROFILER_FOLDERER],
+                   g_EngineConfigstringConfigVec[stringConfig_Index::PROFILER_FILENAME]);
   //init graphics engine
-  if (GLOBAL::JSPFAILED == GetGraphicsEngine.Initialize(hInstance, 
+  if (GLOBAL::JSPFAILED == g_GraphicsEngine.Initialize(hInstance, 
                                                         lpCmdLine, 
                                                         nCmdShow, 
-                                                        JSMath::StringToVec2i(g_EngineConfigGraphicsEngineVec[GraphicsEngine_Index::WindowResolution]),
-                                                        g_EngineConfigGraphicsEngineVec[GraphicsEngine_Index::WindowName],
-                                                        GetEngine.GetRecourceFolderPath() + g_EngineConfigFolderPathVec[FolderPath_Index::SHADER_FOLDER],
-                                                        std::stoi(g_EngineConfigGraphicsEngineVec[GraphicsEngine_Index::WindowFullScreen]),
-                                                        std::stoi(g_EngineConfigGraphicsEngineVec[GraphicsEngine_Index::WindowsShow]))
+                                                        g_EngineConfigVec2iConfigVec[Vec2iConfig_Index::WINDOW_RESOLUTION],
+                                                        g_EngineConfigstringConfigVec[stringConfig_Index::WINDOWS_NAME],
+                                                        g_Engine.GetRecourceFolderPath() + g_EngineConfigstringConfigVec[stringConfig_Index::SHADER_FOLDER],
+                                                        g_EngineConfigboolConfigVec[boolConfig_Index::IS_WINDOW_FULLSCREEN],
+                                                        g_EngineConfigboolConfigVec[boolConfig_Index::IS_WINDOW_SHOW])
                                                         )
   {
     return GLOBAL::JSPFAILED;
   }
-
   //testing math library
   //JSMathTestCaseMacroMethod::TestJSVec2Class();
   //JSMathTestCaseMacroMethod::TestJSVec3Class();
@@ -59,87 +55,48 @@ int JumpshipEngine::Initialize(_In_ HINSTANCE hInstance,
   //JSMultithreading::TestJSMultithreading(); 
   
   //JSMemoeryAllocation::TestMemoeryAllocation();
-  GetMemoryManager.Init();
+  g_MemoryManager.Init();
 
-  int * i = reinterpret_cast<int*>(GetMemoryManager.AllocateMemory(sizeof(int)));
-  int * i2 = reinterpret_cast<int*>(GetMemoryManager.AllocateMemory(sizeof(int)));
-  int * i3 = reinterpret_cast<int*>(GetMemoryManager.AllocateMemory(sizeof(int)));
+  int * i = reinterpret_cast<int*>(g_MemoryManager.AllocateMemory(sizeof(int)));
+  int * i2 = reinterpret_cast<int*>(g_MemoryManager.AllocateMemory(sizeof(int)));
+  int * i3 = reinterpret_cast<int*>(g_MemoryManager.AllocateMemory(sizeof(int)));
   *i = 10;
   *i2 = 20;
   *i3 = 30;
-  GetMemoryManager.DeallocateMemory(i);
-  GetMemoryManager.DeallocateMemory(i2);
-  GetMemoryManager.DeallocateMemory(i3);
+  g_MemoryManager.DeallocateMemory(i);
+  g_MemoryManager.DeallocateMemory(i2);
+  g_MemoryManager.DeallocateMemory(i3);
 
-  Mat4f* m = reinterpret_cast<Mat4f*>(GetMemoryManager.AllocateMemory(sizeof(Mat4f)));
-  GetMemoryManager.DeallocateMemory(m);
+  Mat4f* m = reinterpret_cast<Mat4f*>(g_MemoryManager.AllocateMemory(sizeof(Mat4f)));
+  g_MemoryManager.DeallocateMemory(m);
 
-#define TEST_3
-#ifdef TEST_2                
-
-  //testing vec2 class with simd
-  Vec2f v(1.f, 2.f);
-  Vec2f vv(1.f, 2.f);
-  std::cout << Vec2::Dot(v, vv)  << std::endl;
-
-  Vec2f v3(2.f, 2.f);
-  Vec2f vv4(1.f, 2.f);
-  std::cout << (v3 == vv4 ? "t" : "f") << std::endl;
-
-  std::cout << (v3 *= 2.f) << std::endl;
-
-  Mat2f m(1,2,3,4);
-  Mat2f mm(1,2,3,4);
-  //float* a = m.GetColumn(1);
-  //std::cout << m << std::endl; 
-  //std::cout << mm << std::endl;
-  std::cout << (m *= 2.f) << std::endl;
-#endif
-
-#ifdef TEST_3
-  //Vec3f v(1,2,3);
-  //Vec3f vv(1,2,3);
-  //std::cout << (v == vv ? "t" : "f") << std::endl;
-  ////std::cout << (v *= vv)<< std::endl;
-
-  //Mat3f m(1,2,3,
-  //        4,5,6,
-  //        7,8,9);
-  //Mat3f m1(1,2,3,
-  //         4,5,6,
-  //         7,8,9);  
-  //std::cout << (m *= m1) << std::endl;
-  //std::cout << 123 << std::endl;
-
-  // = _mm512_setzero_ps();
-  //int i =0;
-
-  //std::cout << m1 << std::endl;
-
-
-#endif
-  //
-  //std::cout << (v += vv) << GLOBAL::NEW_LINE;
-  //std::cout << (v -= vv) << GLOBAL::NEW_LINE;
-
-  //Vec2<int> windowResolution(800, 600);
-  //init graphics engine
-  //GetGraphicsEngine.Init(windowResolution);
   return GLOBAL::JSPSUCCESSED;
- }
+}
 
 #define SerializeConfig(x) \
-GetSerializer.Serialize(m_EngineConfigXMLFile, #x, g_EngineConfig##x##Vec); \
-PrintCont(g_EngineConfig##x##Vec) \
+g_Serializer.Serialize(#x, g_EngineConfig##x##ConfigVec); \
+PrintCont(g_EngineConfig##x##ConfigVec) \
 
 void JumpshipEngine::LoadEnginePathConfig()
 {
+#ifdef SerializeByXML
   EASY_FUNCTION(GetProfilerBLKColor(FUNCTION_COLOR));
 	//Serializering Engine Config
 	LogDebug("Serializering Engine Config");
-  SerializeConfig(FolderPath);
-  SerializeConfig(FileName);
-  SerializeConfig(GraphicsEngine);
+  g_Serializer.Init(m_EngineConfigXMLFile);
+  SerializeConfig(string);
+  SerializeConfig(Vec2i);
+  SerializeConfig(bool);
+#else
+#ifdef WriteDataToBinary
+  g_Binserializer.Write();
+#endif
+  g_Binserializer.StartReading();
+  g_Binserializer.Read(g_EngineConfigstringConfigVec, stringConfig_MAX_SIZE);
+  g_Binserializer.Read(g_EngineConfigVec2iConfigVec, Vec2iConfig_MAX_SIZE);
+  g_Binserializer.Read(g_EngineConfigboolConfigVec, boolConfig_MAX_SIZE);
+  g_Binserializer.EndReading();
+#endif
 }
 void JumpshipEngine::Load()
 {
@@ -154,7 +111,7 @@ void JumpshipEngine::Update()
   MSG msg;
   while (GetMessage(&msg, NULL, 0, 0))
   {
-    GetGraphicsEngine.Frame();
+    g_GraphicsEngine.Frame();
     TranslateMessage(&msg);
     //checking input
     DispatchMessage(&msg);
@@ -171,8 +128,8 @@ void JumpshipEngine::Release()
 {
 	EASY_FUNCTION(GetProfilerBLKColor(FUNCTION_COLOR));
   //create profiler file
-  GetProfiler.DumpblockToFile();
-  GetGraphicsEngine.Shutdown();
+  g_Profiler.DumpblockToFile();
+  g_GraphicsEngine.Shutdown();
 	LogDebug("Release");
 }
 
@@ -184,31 +141,31 @@ void JumpshipEngine::CheckInput()
   }
   if (GetInput.IsKeyboardKeyPressed(VK_UP) || GetInput.IsKeyboardKeyPressed('W'))
   {
-    GetCamera->SetPosition(GetCamera->GetPosition() + Vec4f(0, 0.1f, 0.0f, 0));
+    g_Camera->SetPosition(g_Camera->GetPosition() + Vec4f(0, 0.1f, 0.0f, 0));
   }
   if (GetInput.IsKeyboardKeyPressed(VK_DOWN) || GetInput.IsKeyboardKeyPressed('S'))
   {
-    GetCamera->SetPosition(GetCamera->GetPosition() + Vec4f(0, -0.1f, 0.0f, 0));
+    g_Camera->SetPosition(g_Camera->GetPosition() + Vec4f(0, -0.1f, 0.0f, 0));
   }
   if (GetInput.IsKeyboardKeyPressed(VK_LEFT) || GetInput.IsKeyboardKeyPressed('A'))
   {
-    GetCamera->SetPosition(GetCamera->GetPosition() + Vec4f(-0.1f, 0, 0.0f, 0));
+    g_Camera->SetPosition(g_Camera->GetPosition() + Vec4f(-0.1f, 0, 0.0f, 0));
   }
   if (GetInput.IsKeyboardKeyPressed(VK_RIGHT) || GetInput.IsKeyboardKeyPressed('D'))
   {
-    GetCamera->SetPosition(GetCamera->GetPosition() + Vec4f(0.1f, 0, 0.0f, 0));
+    g_Camera->SetPosition(g_Camera->GetPosition() + Vec4f(0.1f, 0, 0.0f, 0));
   }
   if (GetInput.IsKeyboardKeyPressed('Q'))
   {
-    GetCamera->SetPosition(GetCamera->GetPosition() + Vec4f(0.f, 0.f, 0.1f, 0));
+    g_Camera->SetPosition(g_Camera->GetPosition() + Vec4f(0.f, 0.f, 0.1f, 0));
   }
   if (GetInput.IsKeyboardKeyPressed('E'))
   {
-    GetCamera->SetPosition(GetCamera->GetPosition() + Vec4f(0.f, 0.f, -0.1f, 0));
+    g_Camera->SetPosition(g_Camera->GetPosition() + Vec4f(0.f, 0.f, -0.1f, 0));
   }
   if (GetInput.IsKeyboardKeyPressed('G'))
   {
-    GetCamera->SetRosition(GetCamera->GetRotation() + Vec4f(1.f, 0.f, 0.f, 0));
+    g_Camera->SetRosition(g_Camera->GetRotation() + Vec4f(1.f, 0.f, 0.f, 0));
   }
 
   if (GetInput.IsKeyboardKeyDown('A'))

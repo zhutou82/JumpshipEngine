@@ -19,7 +19,7 @@ constexpr uint32_t m_ColorToProfilerColorArr[] =
   RED
 };
 
-#define GetProfiler Singleton<Profiler>::GetInstance()
+#define g_Profiler Singleton<Profiler>::GetInstance()
 #define GetProfilerBLKColor(x) m_ColorToProfilerColorArr[x]
 
 class Profiler : Singleton<Profiler>

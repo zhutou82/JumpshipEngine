@@ -1,47 +1,29 @@
 #include "Serializer/BinSerializer.h"
-#include "JumpshipEngine.h"
-
-void Binserializer::Read()
-{
-  std::cout << "static_i: " <<  static_i << std::endl; 
-  m_InputFile = fopen(DATA_FILE_NAME, BINARY_READING_MODE);
-  if (m_InputFile != JSNULL)
-  {
-    std::string profiler;
-    std::string image;
-    std::string shader;
-    //folder path
-    Serialize(profiler);
-    Serialize(image);
-    Serialize(shader);
-    std::cout << profiler << ", "
-              << image << ", "
-              << shader << std::endl;
-  }
-}
 
 void Binserializer::Write()
 {
   m_OutputFile = fopen(DATA_FILE_NAME, BINARY_WRITING_MODE);
-  std::string profiler = "ProfilerOutput/";
-  std::string image = "Image/";
-  std::string shader = "Shader/";
-
-  if (m_OutputFile != JSNULL)
-  {
-    Deserialize(profiler);
-    Deserialize(image);
-    Deserialize(shader);
-  }
+  assert(m_OutputFile != JSNULL);
+  //write all configs created by strings
+  Deserialize(GLOBAL::PROFILER_FOLDER);
+  Deserialize(GLOBAL::IMAGE_FOLDER);
+  Deserialize(GLOBAL::SHADER_FOLDER);
+  Deserialize(GLOBAL::PROFILER_FILE_NAME);
+  Deserialize(GLOBAL::TEXTURE_SHADER_FILE_NAME);
+  Deserialize(GLOBAL::COLOR_SHADER_FILER_NAME);
+  Deserialize(GLOBAL::WINDOWS_NAME);
+  //write all configs with vec2f
+  Deserialize(Vec2i(800, 600));
+  //write all configs with bool
+  Deserialize(GLOBAL::IS_WINDOW_FULLSCREEN);
+  Deserialize(GLOBAL::IS_WINDOW_SHOW);
   fclose(m_OutputFile);
 }
-
 void Binserializer::WriteStringToFile(const std::string & str)
 {
   Deserialize(str.size());
   fwrite(str.c_str(), sizeof(char), str.size(), m_OutputFile);
 }
-
 void Binserializer::ReadStringFromFile(std::string & str)
 {
   size_t size = 0;

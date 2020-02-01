@@ -8,20 +8,20 @@ int CALLBACK WinMain(
                     )
 {
   //allocate console at the beginning of the engine
-  GetGraphicsEngine.AllocateConsole();
+  g_GraphicsEngine.AllocateConsole();
 
   LogDebug("Set-up profiler");
   EASY_PROFILER_ENABLE
 	//EASY_FUNCTION(profiler::colors::Magenta);
 	EASY_BLOCK("Whole Engine Run time"); 
-	if(GLOBAL::JSPFAILED == GetEngine.Initialize(hInstance, lpCmdLine, nCmdShow))
+	if(GLOBAL::JSPFAILED == g_Engine.Initialize(hInstance, lpCmdLine, nCmdShow))
   {
     return 0;
   }
-	GetEngine.Load();
-	GetEngine.Update();
-	GetEngine.Unload();
-	GetEngine.Release();
+	g_Engine.Load();
+	g_Engine.Update();
+	g_Engine.Unload();
+	g_Engine.Release();
 	EASY_END_BLOCK
 	//testing profiler
 	

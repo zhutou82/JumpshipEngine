@@ -14,8 +14,8 @@ constexpr const bool VSYNC_ENABLED = true;
 constexpr const float SCREEN_DEPTH = 1000.0f;
 constexpr const float SCREEN_NEAR = 0.1f;
 
-#define GetGraphicsEngine Singleton<Graphics>::GetInstance()
-#define GetCamera GetGraphicsEngine.GetCameraClass()
+#define g_GraphicsEngine Singleton<Graphics>::GetInstance()
+#define g_Camera g_GraphicsEngine.GetCameraClass()
 class Graphics : public Singleton<Graphics>
 {
   public:
