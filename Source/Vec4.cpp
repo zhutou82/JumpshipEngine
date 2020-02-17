@@ -8,7 +8,6 @@ const Vec4f& Vec4f::operator=(const Vec4f& rhs)
 
 const Vec4f& Vec4f::operator+=(const Vec4f& rhs)
 {
-  m_XYZWMM = _mm_add_ps(m_XYZWMM, rhs.m_XYZWMM);
   return *this;
 }
 

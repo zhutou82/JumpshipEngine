@@ -2,7 +2,7 @@
 #include "Common/CommonHeader.h"
 #include "Common/SingletonBaseClass.h"
 #include "JSMath.h"	
-#define SerializeByXML
+//#define SerializeByXML
 #define WriteDataToBinary 
 using namespace std;
 
@@ -22,6 +22,7 @@ REGISTER_ENUM_START(string)
 REGISTER_ENUM_ENTRY(PROFILER_FOLDERER)
 REGISTER_ENUM_ENTRY(IMAGE_FOLDER)
 REGISTER_ENUM_ENTRY(SHADER_FOLDER)
+REGISTER_ENUM_ENTRY(LOG_FOLDER)
 REGISTER_ENUM_ENTRY(PROFILER_FILENAME)
 REGISTER_ENUM_ENTRY(TEXTURE_SHADER_FILENAME)
 REGISTER_ENUM_ENTRY(COLOR_SHADER_FILENAME)
@@ -54,9 +55,9 @@ class JumpshipEngine : public Singleton<JumpshipEngine>
 public:
 
 	friend class Singleton<JumpshipEngine>;
-	int Initialize(_In_ HINSTANCE hInstance, 
-                  _In_ LPSTR lpCmdLine, 
-                  _In_ int nCmdShow);
+	JSbool Initialize(_In_ HINSTANCE hInstance, 
+                    _In_ LPSTR lpCmdLine, 
+                    _In_ int nCmdShow);
 	void LoadEnginePathConfig();
 	void Load();
 	void Update();

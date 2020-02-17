@@ -20,14 +20,14 @@ class Graphics : public Singleton<Graphics>
 {
   public:
   friend class Singleton<Graphics>;
-  int Initialize(_In_ HINSTANCE hInstance,
-                  _In_ LPSTR lpCmdLine,
-                  _In_ int nCmdShow,
-                  const Vec2i& windowResolution, 
-                  const std::string& windowName,
-                  const std::string& shaderFolderPath,
-                  bool isFullScreen,
-                  bool isShowWindow);
+  JSbool Initialize(_In_ HINSTANCE hInstance,
+                    _In_ LPSTR lpCmdLine,
+                    _In_ int nCmdShow,
+                    const Vec2i& windowResolution, 
+                    const std::string& windowName,
+                    const std::string& shaderFolderPath,
+                    JSbool isFullScreen,
+                    JSbool isShowWindow);
   void AllocateConsole();
   void PopupMessageBox();
   void Shutdown();
@@ -38,12 +38,12 @@ class Graphics : public Singleton<Graphics>
 
   private:
 
-  static constexpr const char* FailedToCreateWindowMsg = "Call to CreateWindow failed!";
-  static constexpr const char* FailedToRegisterWindowMsg = "Call to RegisterClassEx failed!";
-  static constexpr const char* FailedToInitD3DClass = "Call to initialize Direct3D failed";
-  static constexpr const char* FailedToIniModelObject = "Call to initialize Model object failed";
-  static constexpr const char* FailedToInitColorShader = "Call to initialize Color Shader object failed";
-  static constexpr const char* ErrorWindowCaption = "ERROR!";
+  static constexpr const JSchar* FailedToCreateWindowMsg = "Call to CreateWindow failed!";
+  static constexpr const JSchar* FailedToRegisterWindowMsg = "Call to RegisterClassEx failed!";
+  static constexpr const JSchar* FailedToInitD3DClass = "Call to initialize Direct3D failed";
+  static constexpr const JSchar* FailedToIniModelObject = "Call to initialize Model object failed";
+  static constexpr const JSchar* FailedToInitColorShader = "Call to initialize Color Shader object failed";
+  static constexpr const JSchar* ErrorWindowCaption = "ERROR!";
   Graphics() 
   : 
   m_D3D(JSNULL),
@@ -52,8 +52,8 @@ class Graphics : public Singleton<Graphics>
   m_ColorShader(JSNULL),
   m_TextureShader(JSNULL)
   {}
-  int CreateWindows();
-  int SetupD3DClass();
+  JSbool CreateWindows();
+  JSbool SetupD3DClass();
   Vec2i GetDesktopResolution();
   //window creation memebers
   std::string m_WindowsName;
@@ -62,8 +62,8 @@ class Graphics : public Singleton<Graphics>
   HINSTANCE m_hInstance;
   LPSTR m_lpCmdLine;
   int m_nCmdShow;
-  bool m_IsFullScreen;
-  bool m_IsShowWindow;
+  JSbool m_IsFullScreen;
+  JSbool m_IsShowWindow;
 
   D3DClass* m_D3D;
   HWND m_HWND;

@@ -530,7 +530,7 @@ namespace JSMemoeryAllocation
 
   void TestMemoeryAllocation()
   {
-    g_MemoryManager.Init();
+    //g_MemoryManager.Init();
     system_clock::time_point start;
     int n = 1000000;
     START

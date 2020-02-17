@@ -1,14 +1,14 @@
 #include "Graphics.h"
 
 
-int Graphics::Initialize(HINSTANCE hInstance, 
+JSbool Graphics::Initialize(HINSTANCE hInstance, 
                           LPSTR lpCmdLine, 
                           int nCmdShow, 
                           const Vec2i & windowResolution, 
                           const std::string & windowName, 
                           const std::string & shaderFolderPath,
-                          bool isFullScreen,
-                          bool isShowWindow)
+                          JSbool isFullScreen,
+                          JSbool isShowWindow)
 {
   m_hInstance = hInstance;
   m_lpCmdLine = lpCmdLine;
@@ -55,8 +55,9 @@ void Graphics::Shutdown()
 
 bool Graphics::Frame()
 {
+  //return true;
   //render the graphics scene
-  bool result = Render();
+  bool result  = Render();
   return result;
 }
 
@@ -121,7 +122,7 @@ LRESULT CALLBACK WndProc(
   }
   return 0;
 }
-int Graphics::CreateWindows()
+JSbool Graphics::CreateWindows()
 {
   /*contains the information about the window, such as:
   1. the application icon
@@ -158,6 +159,8 @@ int Graphics::CreateWindows()
    //register window class
   if (!RegisterClassEx(&wcex))
   {
+    std::cout << "GetLastError() returns: " << GetLastError() << "\n";
+    printf("Error in Function = WinMain() at line = %d, with error code = %X \n", __LINE__ - 3, (unsigned int)GetLastError());
     MessageBox(NULL,
                FailedToRegisterWindowMsg,
                ErrorWindowCaption,
@@ -222,16 +225,16 @@ int Graphics::CreateWindows()
   return GLOBAL::JSPSUCCESSED;
 }
 
-int Graphics::SetupD3DClass()
+JSbool Graphics::SetupD3DClass()
 {
   m_D3D = JSNew(D3DClass);
   //initialize the Direct3D object
-  bool result = m_D3D->Initialize(m_WindowResulution, 
-                                  VSYNC_ENABLED, 
-                                  m_HWND, 
-                                  FULL_SCREEN, 
-                                  SCREEN_DEPTH,
-                                  SCREEN_NEAR);
+  JSbool result = m_D3D->Initialize(m_WindowResulution, 
+                                    VSYNC_ENABLED, 
+                                    m_HWND, 
+                                    FULL_SCREEN, 
+                                    SCREEN_DEPTH,
+                                    SCREEN_NEAR);
   if (!result)
     MessageBox(m_HWND, 
                FailedToInitD3DClass, 
@@ -239,6 +242,7 @@ int Graphics::SetupD3DClass()
                MB_ICONERROR);
   // Create the camera object.
   m_Camera = JSNew(CameraClass);
+  //m_Camera = reinterpret_cast<CameraClass*>(g_MemoryManager.AllocateMemory(sizeof(CameraClass)));
   if(!m_Camera) return false;
 
   // Set the initial position of the camera.
@@ -268,7 +272,7 @@ int Graphics::SetupD3DClass()
   //}
 
   // Create the texture shader object.
-  m_TextureShader = new TextShaderClass;
+  m_TextureShader = JSNew(TextShaderClass);
   if (!m_TextureShader) return false;
   // Initialize the color shader object.
   result = m_TextureShader->Initialize(m_D3D->GetDevice(), m_HWND);

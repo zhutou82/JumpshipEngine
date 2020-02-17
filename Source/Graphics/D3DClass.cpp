@@ -50,7 +50,7 @@ bool D3DClass::Initialize(const Vec2i& screenResolution,
   result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
   if (FAILED(result)) return false;
   // Create a list to hold all the possible display modes for this monitor/video card combination.
-  displayModeList = new DXGI_MODE_DESC[numModes];
+  displayModeList = JSNewArray(DXGI_MODE_DESC, numModes);
   if (!displayModeList) { return false; }
   // Now fill the display mode list structures.
   result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList);

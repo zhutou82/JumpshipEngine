@@ -12,8 +12,6 @@
 using namespace DirectX;
 using namespace std;
 
-
-
 class TextShaderClass
 {
 

@@ -25,10 +25,10 @@ public:
   void Move(const Vec4f& vec) { m_ViewMatrix  *= XMMatrixTranslation(vec.GetX(), vec.GetY(), vec.GetZ()); }
   
 private:
-  XMMATRIX m_ViewMatrix;
   Vec4f m_Position;
   Vec4f m_Rotation;
   Vec4f m_UpVec;
   Vec4f m_ForwardVec;
   Vec4f m_LookAtVec;
+  XMMATRIX m_ViewMatrix;
 };

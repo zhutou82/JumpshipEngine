@@ -8,7 +8,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <assert.h> 
 #include "JumpshipEngine.h"
 
 
@@ -28,16 +27,27 @@ class BinaryFile
 #define g_Binserializer Singleton<Binserializer>::GetInstance()
 class Binserializer : Singleton<Binserializer>
 {
+  const std::string PROFILER_FOLDER = "ProfilerOutput/";
+  const std::string IMAGE_FOLDER = "Image/";
+  const std::string SHADER_FOLDER = "Shader/";
+  const std::string LOG_FOLDER = "LogFiles/";
+  const std::string TEXTURE_SHADER_FILE_NAME = "texture";
+  const std::string COLOR_SHADER_FILER_NAME = "color";
+  const std::string PROFILER_FILE_NAME = "version1";
+  const std::string WINDOWS_NAME = "JSEngine";
+  static constexpr const JSbool IS_WINDOW_FULLSCREEN = false;
+  static constexpr const JSbool IS_WINDOW_SHOW = false;
+
 public:
   friend class Singleton<Binserializer>;
-  static constexpr const char* DATA_FILE_NAME = "Engine.dat";
-  static constexpr const char* BINARY_WRITING_MODE = "wb";
-  static constexpr const char* BINARY_READING_MODE = "rb";
+  static constexpr const JSchar* DATA_FILE_NAME = "Engine.dat";
+  static constexpr const JSchar* BINARY_WRITING_MODE = "wb";
+  static constexpr const JSchar* BINARY_READING_MODE = "rb";
   void StartReading() { m_InputFile = fopen(DATA_FILE_NAME, BINARY_READING_MODE); assert(m_InputFile != JSNULL); }
   template <typename T>
   void Read(std::vector<T>& vec, int max_size)
   {
-    assert(vec.size() == max_size);
+    //assert(vec.size() == max_size);1
     for (size_t i = 0; i < max_size; ++i)
     {
       T tmpValue;

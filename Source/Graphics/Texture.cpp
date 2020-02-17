@@ -119,7 +119,7 @@ bool TextureClass::LoadTarga(const char* filename, int& height, int& width)
   imageSize = width * height * 4;
 
   // Allocate memory for the targa image data.
-  targaImage = new unsigned char[imageSize];
+  targaImage = JSNewArray(unsigned char, imageSize);
   if (!targaImage)
   {
     return false;
@@ -140,7 +140,7 @@ bool TextureClass::LoadTarga(const char* filename, int& height, int& width)
   }
 
   // Allocate memory for the targa destination data.
-  m_TargaData = new unsigned char[imageSize];
+  m_TargaData = JSNewArray(unsigned char, imageSize);
   if (!m_TargaData)
   {
     return false;
@@ -172,7 +172,7 @@ bool TextureClass::LoadTarga(const char* filename, int& height, int& width)
   }
 
   // Release the targa image data now that it was copied into the destination array.
-  delete[] targaImage;
+  JSDeleteArray(targaImage);
   targaImage = 0;
 
   return true;

@@ -13,14 +13,33 @@ m_EngineConfigXMLFile (m_XMLFolderPath + "EngineConfig.xml")
 {
 
 }
-int JumpshipEngine::Initialize(_In_ HINSTANCE hInstance,
+JSbool JumpshipEngine::Initialize(_In_ HINSTANCE hInstance,
                                _In_ LPSTR lpCmdLine,
                                _In_ int nCmdShow)
 { 
   EASY_FUNCTION(GetProfilerBLKColor(FUNCTION_COLOR));
+  g_Logger.Init("LogFiles/");
 	LogDebug("Initialize");
 	LogDebug("Serializering data");
+  int ii = 0;
+  LogDebug("%i, %i", ii, ii); 
+
+  //int * i6 = JSNewArray(int, 118);
+  //int * i7 = JSNewArray(int, 1);
+  //JSDelete(i7);
+  //int * i8 = JSNewArray(int, 1);
+  //int * i9 = JSNewArray(int, 10);
+  //JSDelete(i8);
+  //int * i10 = JSNewArray(int, 1);
+
+  //g_MemoryManager.DeallocateMemory(i);
+  //g_MemoryManager.DeallocateMemory(i3);
+
+  //Mat4f* m = reinterpret_cast<Mat4f*>(g_MemoryManager.AllocateMemory(sizeof(Mat4f)));
+  //g_MemoryManager.DeallocateMemory(m); 
+
 	LoadEnginePathConfig();
+  g_Logger.Init(g_EngineConfigstringConfigVec[stringConfig_Index::LOG_FOLDER].c_str());
   GetThreadPool.InitWorkers();  
 	g_Profiler.Init(g_EngineConfigstringConfigVec[stringConfig_Index::PROFILER_FOLDERER],
                    g_EngineConfigstringConfigVec[stringConfig_Index::PROFILER_FILENAME]);
@@ -37,6 +56,7 @@ int JumpshipEngine::Initialize(_In_ HINSTANCE hInstance,
   {
     return GLOBAL::JSPFAILED;
   }
+
   //testing math library
   //JSMathTestCaseMacroMethod::TestJSVec2Class();
   //JSMathTestCaseMacroMethod::TestJSVec3Class();
@@ -55,20 +75,7 @@ int JumpshipEngine::Initialize(_In_ HINSTANCE hInstance,
   //JSMultithreading::TestJSMultithreading(); 
   
   //JSMemoeryAllocation::TestMemoeryAllocation();
-  g_MemoryManager.Init();
 
-  int * i = reinterpret_cast<int*>(g_MemoryManager.AllocateMemory(sizeof(int)));
-  int * i2 = reinterpret_cast<int*>(g_MemoryManager.AllocateMemory(sizeof(int)));
-  int * i3 = reinterpret_cast<int*>(g_MemoryManager.AllocateMemory(sizeof(int)));
-  *i = 10;
-  *i2 = 20;
-  *i3 = 30;
-  g_MemoryManager.DeallocateMemory(i);
-  g_MemoryManager.DeallocateMemory(i2);
-  g_MemoryManager.DeallocateMemory(i3);
-
-  Mat4f* m = reinterpret_cast<Mat4f*>(g_MemoryManager.AllocateMemory(sizeof(Mat4f)));
-  g_MemoryManager.DeallocateMemory(m);
 
   return GLOBAL::JSPSUCCESSED;
 }
@@ -126,11 +133,12 @@ void JumpshipEngine::Unload()
 }
 void JumpshipEngine::Release()
 {
+  LogDebug("Release");
 	EASY_FUNCTION(GetProfilerBLKColor(FUNCTION_COLOR));
   //create profiler file
   g_Profiler.DumpblockToFile();
   g_GraphicsEngine.Shutdown();
-	LogDebug("Release");
+  g_MemoryManager.Release();
 }
 
 void JumpshipEngine::CheckInput()
