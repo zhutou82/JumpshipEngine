@@ -1,4 +1,4 @@
-  #pragma once
+    #pragma once
 #include "Common/CommonMath.h"
 #include "Math/Vec2.h"
 #include "Math/Mat2.h"
@@ -9,7 +9,7 @@
 
 namespace JSMath
 {
-  Vec2f StringToVec2f(const std::string& rhs);
-  Vec2i StringToVec2i(const std::string& rhs);
+    Vec2f StringToVec2f(const std::string& rhs);
+    Vec2i StringToVec2i(const std::string& rhs);
 }
 

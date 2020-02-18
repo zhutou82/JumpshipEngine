@@ -16,46 +16,46 @@ class ColorShaderClass
 {
 
 public:
-  ColorShaderClass() : 
-  m_VertexShader(JSNULL),
-  m_PixelShader(JSNULL),
-  m_Layout(JSNULL),
-  m_MatrixBuffer(JSNULL)
-  {};
-  ColorShaderClass(const ColorShaderClass&) = delete;
-  ~ColorShaderClass() {};
+    ColorShaderClass() : 
+    m_VertexShader(JSNULL),
+    m_PixelShader(JSNULL),
+    m_Layout(JSNULL),
+    m_MatrixBuffer(JSNULL)
+    {};
+    ColorShaderClass(const ColorShaderClass&) = delete;
+    ~ColorShaderClass() {};
 
-  bool Initialize(ID3D11Device* device, HWND hwnd); 
-  void Shutdown();
-  bool Render(ID3D11DeviceContext* deviceContext, 
-              int indexCount,
-              XMMATRIX worldMatrix,
-              XMMATRIX viewMatrix, 
-              XMMATRIX projectionMatrix);
+    bool Initialize(ID3D11Device* device, HWND hwnd); 
+    void Shutdown();
+    bool Render(ID3D11DeviceContext* deviceContext, 
+                            int indexCount,
+                            XMMATRIX worldMatrix,
+                            XMMATRIX viewMatrix, 
+                            XMMATRIX projectionMatrix);
 
 private:
 
-  struct MatrixBufferType
-  {
-    XMMATRIX world;
-    XMMATRIX view;
-    XMMATRIX projection;
-  };
+    struct MatrixBufferType
+    {
+        XMMATRIX world;
+        XMMATRIX view;
+        XMMATRIX projection;
+    };
 
-  bool InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t*, const wchar_t*);
-  void ShutdownShader();
-  void OutputShaderErrorMessage(ID3D10Blob*, HWND, const wchar_t*);
+    bool InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t*, const wchar_t*);
+    void ShutdownShader();
+    void OutputShaderErrorMessage(ID3D10Blob*, HWND, const wchar_t*);
 
-  bool SetShaderParameters(ID3D11DeviceContext* deviceContext, 
-                           XMMATRIX worldMatrix, 
-                           XMMATRIX viewMatrix, 
-                           XMMATRIX projectionMatrix);
-  void RenderShader(ID3D11DeviceContext*, int);
+    bool SetShaderParameters(ID3D11DeviceContext* deviceContext, 
+                                                     XMMATRIX worldMatrix, 
+                                                     XMMATRIX viewMatrix, 
+                                                     XMMATRIX projectionMatrix);
+    void RenderShader(ID3D11DeviceContext*, int);
 
-  ID3D11VertexShader* m_VertexShader;
-  ID3D11PixelShader* m_PixelShader;
-  ID3D11InputLayout* m_Layout;
-  ID3D11Buffer* m_MatrixBuffer;
+    ID3D11VertexShader* m_VertexShader;
+    ID3D11PixelShader* m_PixelShader;
+    ID3D11InputLayout* m_Layout;
+    ID3D11Buffer* m_MatrixBuffer;
 
 };
 

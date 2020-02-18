@@ -24,16 +24,16 @@ public:
 	void Shutdown();
 	ID3D11ShaderResourceView* GetTexture() {return m_TextureView;}
 private:
-  struct TargaHeader
-  {
-    unsigned char data1[12];
-    unsigned short width;
-    unsigned short height;
-    unsigned char bpp;
-    unsigned char data2;
-  };
-  bool LoadTarga(const char*, int&, int&);
-  unsigned char* m_TargaData;
-  ID3D11Texture2D* m_Texture;
-  ID3D11ShaderResourceView* m_TextureView;
+    struct TargaHeader
+    {
+        unsigned char data1[12];
+        unsigned short width;
+        unsigned short height;
+        unsigned char bpp;
+        unsigned char data2;
+    };
+    bool LoadTarga(const char*, int&, int&);
+    unsigned char* m_TargaData;
+    ID3D11Texture2D* m_Texture;
+    ID3D11ShaderResourceView* m_TextureView;
 };
