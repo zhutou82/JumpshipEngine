@@ -7,52 +7,32 @@ void * operator new (size_t size)
 {
     return g_MemoryManager.AllocateMemory(size, 1);
 }
-//void* operator new [](size_t size)
-//{
-//        return g_MemoryManager.AllocateMemory(size);
-//}
-////
 void operator delete(void* toDelete)
 {
     return g_MemoryManager.DeallocateMemory(toDelete);
 }
-//
-//void operator delete[](void * toDelete)
-//{
-//  
-//}
 #endif
 
 void * MemoeryManager::AllocateMemory(JSuint64 sz, JSuint32 numberOfAllocations)
 {
     LogDebug("AllocateMemory, numberOfAllocations: %u\n", numberOfAllocations);
-    JSuint64 size = sz * numberOfAllocations + 2 * PADDING_SIZE;
-    JSuint64 pageSize = size > PAGE_SIZE ? size : PAGE_SIZE;
-    for (JSuint32 i = 0; i < NUMBER_OF_PAGES; ++i)
+    JSuint64 allocationStrSize = sizeof(AllocationHeader);
+    JSuint64 allocationSize = PADDING_SIZE + allocationStrSize + sz * numberOfAllocations + PADDING_SIZE;
+    JSuint64 pageSize = allocationSize > PAGE_SIZE ? allocationSize : PAGE_SIZE;
+    for (JSuint16 i = 0; i < NUMBER_OF_PAGES; ++i)
     {
         PageHeader& page = m_PageHeaderAllocationVec[i];
-        if (!page.isInitialized) page.Init(pageSize, true);
-        //LogDebug("Page start address: %p End address: %p\n", reinterpret_cast<JSvoid*>(page.startAddr), reinterpret_cast<JSvoid*>(page.endAddr));
-        JSint32 indexToUse = 0;
-        //find available index
-        for (JSint32 j = 0; j < NUMBER_OF_MAX_ALLOCATION_IN_ONE_PAGE; ++j)
+        if (!page.isInitialized)
         {
-            if (page.freeAllocationIndex.IsCurrentIndexIsSet(j) == false)
-            {
-                indexToUse = j;
-                break;
-            }
+            page.Init(pageSize);
         }
+        page.PrintPage();
         //if free allocation index number to use is equal to max number of allocation, means it has run out of all allocations
-        JSassert(indexToUse < NUMBER_OF_MAX_ALLOCATION_IN_ONE_PAGE);
-        AllocationHeader& newAllocationHeader = page.allocationHeaderVec[indexToUse];
-        newAllocationHeader.Init(page.startAddr, size, indexToUse);
+        AllocationHeader* newAllocation = page.allocationList.InsertAllocation(allocationSize);
         //insert into allcation list and update new allocation properties
-        if (page.allocationList.InsertAllocation(&newAllocationHeader, page.endAddr))
+        if (newAllocation)
         {
-            newAllocationHeader.AddPadding();
-            page.freeAllocationIndex.SetKBitToOne(indexToUse);
-            return newAllocationHeader.startAddr + PADDING_SIZE;
+            return newAllocation->startAddr + PADDING_SIZE + allocationStrSize;
         }
     }
     return JSNULL;
@@ -60,22 +40,23 @@ void * MemoeryManager::AllocateMemory(JSuint64 sz, JSuint32 numberOfAllocations)
 
 void MemoeryManager::DeallocateMemory(JSvoid * toDelete)
 {
-    JSvoid* realToDeleteAddr = reinterpret_cast<JSbyte*>(toDelete) - PADDING_SIZE;
+    LogDebug("Addr to delete: %p\n", toDelete);
+    JSvoid* realToDeleteAddr = reinterpret_cast<JSbyte*>(toDelete) - sizeof(AllocationHeader) - PADDING_SIZE;
     JSassert(toDelete != JSNULL);
     //bad pointer if to delete addr is padding
-    LogDebug("Addr to delete: %p\n", realToDeleteAddr);
+    LogDebug("Real Addr to delete: %p\n", realToDeleteAddr);
     JSassert(*reinterpret_cast<JSint32*>(realToDeleteAddr) == MAGIC_NUMBER);
     for (auto& page : m_PageHeaderAllocationVec)
     {
         if (realToDeleteAddr <= page.endAddr && realToDeleteAddr >= page.startAddr)
         {
-            //LogDebug("Page start address: %p End address: %p\n", reinterpret_cast<JSvoid*>(page.startAddr), reinterpret_cast<JSvoid*>(page.endAddr));
+            LogDebug("Page start address: %p End address: %p\n", reinterpret_cast<JSvoid*>(page.startAddr), reinterpret_cast<JSvoid*>(page.endAddr));
             AllocationHeader* allocationToDelete = page.allocationList.RemoveAllocation(realToDeleteAddr);
             //printf("Size to delete: %u\n", allocationToDelete->size);
             if (allocationToDelete)
             {
                 JSassert(*reinterpret_cast<JSint32*>(reinterpret_cast<JSbyte*>(realToDeleteAddr) + allocationToDelete->size - PADDING_SIZE) == MAGIC_NUMBER);
-                page.RemoveAllocation(allocationToDelete);
+                memset(allocationToDelete->startAddr, INIT_VALUE, allocationToDelete->size);
                 return;
             }
             LogDebug("Bad pointer as could not be find in this page\n");
@@ -87,89 +68,79 @@ void MemoeryManager::DeallocateMemory(JSvoid * toDelete)
 //free all memory allocated by page
 void MemoeryManager::Release()
 {
-    for (auto& page : m_PageHeaderAllocationVec) free(page.startAddr);
+    for (auto& page : m_PageHeaderAllocationVec)
+    {
+        free(page.startAddr);
+    }
 }
 
-//Allocation Header
-void AllocationHeader::AddPadding()
+void AllocationLinkedList::InitAllocation(AllocationHeader *& newAllocation, JSbyte* startAddr, JSuint64 size)
 {
+    newAllocation = reinterpret_cast<AllocationHeader*>(reinterpret_cast<JSbyte*>(startAddr) + PADDING_SIZE);
+    newAllocation->size = size;
+    newAllocation->startAddr = startAddr;
+    newAllocation->endAddr = startAddr + size;
+    newAllocation->next = JSNULL;
     //set start and end addr to the addr without padding
     //add padding to start and end of new allocation
     *reinterpret_cast<JSint32*>(startAddr) = MAGIC_NUMBER;
-    *reinterpret_cast<JSint32*>(endAddr - PADDING_SIZE) = MAGIC_NUMBER;
-    //fill the allocated space to 0
-    memset(startAddr + PADDING_SIZE, INIT_VALUE, size - 2 * PADDING_SIZE);
-}
-void AllocationHeader::Init(JSbyte * s, JSuint64 sz, JSuint32 indexToUse)
-{
-    JSassert(s != JSNULL);
-    startAddr = s;
-    endAddr = startAddr + sz;
-    size = sz;
-    index = indexToUse;
+    *reinterpret_cast<JSint32*>(startAddr + size - PADDING_SIZE) = MAGIC_NUMBER;
+    memset(startAddr + PADDING_SIZE + sizeof(AllocationHeader),
+           INIT_VALUE,
+           size - 2 * PADDING_SIZE - sizeof(AllocationHeader));
 }
 
-//AllocationLinkedList
-void AllocationLinkedList::AddAllocation(AllocationHeader * data)
+AllocationHeader* AllocationLinkedList::InsertAllocation(JSuint64 allocationSize)
 {
-    JSassert(data != JSNULL);
-    if (!head)
-    {
-        head = data;
-        tail = data;
-    }
-    else
-    {
-        tail->next = data;
-        tail = tail->next;
-    }
-    PrintList();
-}
-bool AllocationLinkedList::InsertAllocation(AllocationHeader * data, JSbyte * pageEndAddr)
-{
-    JSassert(data != JSNULL || pageEndAddr != JSNULL);
-    if (data->endAddr > pageEndAddr) return false;
+    JSbyte * endAddr = currentPage->startAddr + allocationSize;
+    if (endAddr > currentPage->endAddr) return JSNULL;
+    JSbyte * startAddr = currentPage->startAddr;
     AllocationHeader* curr = head;
     AllocationHeader* prev = head;
+    AllocationHeader * newAllocation = JSNULL;
+    bool locationToInsertFound = false;
     if (head == JSNULL)
     {
-        AddAllocation(data);
-        return true;
+        InitAllocation(head, currentPage->startAddr, allocationSize);
+        newAllocation = head;
+        tail = head;
+        locationToInsertFound = true;
     }
-    while (curr)
+    while (curr && !locationToInsertFound)
     {
-        if (data->endAddr <= curr->startAddr)
+        if (endAddr <= curr->startAddr)
         {
+            InitAllocation(newAllocation, startAddr, allocationSize);
             if (curr == head)
             {
-                data->next = curr;
-                head = data;
+                newAllocation->next = curr;
+                head = newAllocation;
             }
             else
             {
-                prev->next = data;
-                data->next = curr;
+                prev->next = newAllocation;
+                newAllocation->next = curr;
             }
-
-            PrintList();
-            return true;
+            locationToInsertFound = true;
         }
-        data->startAddr = curr->endAddr;
-        data->endAddr = data->startAddr + data->size;
-
+        startAddr = curr->endAddr;
+        endAddr = startAddr + allocationSize;
         prev = curr;
         curr = curr->next;
     }
-    if (data->endAddr < pageEndAddr)
+    if (endAddr < currentPage->endAddr && !locationToInsertFound)
     {
-        AddAllocation(data);
-        return true;
+        InitAllocation(newAllocation, startAddr, allocationSize);
+        tail->next = newAllocation;
+        tail = tail->next;
     }
-    return false;
+    PrintList();
+    return newAllocation;
 }
 AllocationHeader * AllocationLinkedList::RemoveAllocation(void * addr)
 {
     JSassert(addr != JSNULL);
+    AllocationHeader* toDelete = JSNULL;
     AllocationHeader* curr = head;
     AllocationHeader* prev = head;
     while (curr)
@@ -177,35 +148,32 @@ AllocationHeader * AllocationLinkedList::RemoveAllocation(void * addr)
         if (curr->startAddr == addr)
         {
             prev->next = curr->next;
-            if (curr == head)            head = curr->next;
+            if (curr == head)      head = curr->next;
             else if (curr == tail) tail = curr == head ? JSNULL : prev;
             curr->next = JSNULL;
-            PrintList();
-            return curr;
+            toDelete = curr;
+            break;
         }
         prev = curr;
         curr = curr->next;
     }
-    return JSNULL;
+    PrintList();
+    return toDelete;
 }
 
 void AllocationLinkedList::PrintList()
 {
     AllocationHeader* tmpHead = head;
-    if (tmpHead == JSNULL)
+    if (!tmpHead)
     {
         LogDebug("Empty Page after deletion");
         return;
     }
-
     for (; tmpHead->next; tmpHead = tmpHead->next)
     {
-
-        //LogDebug("[ %p - %p ](%llu)->", reinterpret_cast<JSvoid*>(tmpHead->startAddr), reinterpret_cast<JSvoid*>(tmpHead->endAddr), tmpHead->size);
-        //std::cout << GLOBAL::SQUARE_BRACKET_O << reinterpret_cast<JSvoid*>(tmpHead->startAddr) << GLOBAL::DASH << reinterpret_cast<JSvoid*>(tmpHead->endAddr) << GLOBAL::SQUARE_BRACKET_C
-        //                    << GLOBAL::BRACKET_O << tmpHead->size << GLOBAL::BRACKET_C << GLOBAL::ARROW;
+        LogDebug("[ %p - %p ](%llu)->", reinterpret_cast<JSvoid*>(tmpHead->startAddr), reinterpret_cast<JSvoid*>(tmpHead->endAddr), tmpHead->size);
     }
-    //LogDebug("[ %p - %p ](%llu)\n", reinterpret_cast<JSvoid*>(tmpHead->startAddr), reinterpret_cast<JSvoid*>(tmpHead->endAddr), tmpHead->size);
+    LogDebug("[ %p - %p ](%llu)\n", reinterpret_cast<JSvoid*>(tmpHead->startAddr), reinterpret_cast<JSvoid*>(tmpHead->endAddr), tmpHead->size);
 
 }
 //PageHeader
@@ -219,15 +187,11 @@ void PageHeader::Init(JSuint64 size, JSbool init)
     isInitialized = init;
     PrintPage();
 }
-void PageHeader::RemoveAllocation(AllocationHeader * allocationToRemove)
-{
-    //clear the value 
-    memset(allocationToRemove->startAddr, INIT_VALUE, allocationToRemove->size);
-    freeAllocationIndex.SetKBitToZero(allocationToRemove->index);
-}
+
 void PageHeader::PrintPage()
 {
-    //printf("New page allocated\n Start address: %p End address: %p \n", reinterpret_cast<JSvoid*>(startAddr), reinterpret_cast<JSvoid*>(endAddr));
+    printf("New page allocated\n Start address: %p End address: %p \n", reinterpret_cast<JSvoid*>(startAddr), 
+                                                                        reinterpret_cast<JSvoid*>(endAddr));
 }
 
 

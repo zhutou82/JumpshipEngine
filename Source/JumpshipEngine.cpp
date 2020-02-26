@@ -32,8 +32,12 @@ JSbool JumpshipEngine::Initialize(_In_ HINSTANCE hInstance,
 
     //g_MemoryManager.DeallocateMemory(i);
     //g_MemoryManager.DeallocateMemory(i3);
+    //int * i = reinterpret_cast<int*>(g_MemoryManager.AllocateMemory(sizeof(int), 1));
+    //int * i2 = reinterpret_cast<int*>(g_MemoryManager.AllocateMemory(sizeof(int), 2));
+    //g_MemoryManager.DeallocateMemory(i);
+    //g_MemoryManager.DeallocateMemory(i2);
 
-    //Mat4f* m = reinterpret_cast<Mat4f*>(g_MemoryManager.AllocateMemory(sizeof(Mat4f)));
+    //Mat4f* m = reinterpret_cast<Mat4f*>(g_MemoryManager.AllocateMemory(sizeof(Mat4f), 1));
     //g_MemoryManager.DeallocateMemory(m); 
 
 	LoadEnginePathConfig();
