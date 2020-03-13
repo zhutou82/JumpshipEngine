@@ -1,13 +1,12 @@
 #include "Common/MemoryManager.h"
 #include <thread>
 
-
 #ifndef USING_GLOBAL_NEW
 void * operator new (size_t size)
 {
     return g_MemoryManager.AllocateMemory(size, 1);
 }
-void operator delete(void* toDelete)
+void operator delete(void* toDelete) noexcept(true)
 {
     return g_MemoryManager.DeallocateMemory(toDelete);
 }
@@ -22,13 +21,17 @@ void * MemoeryManager::AllocateMemory(JSuint64 sz, JSuint32 numberOfAllocations)
     for (JSuint16 i = 0; i < NUMBER_OF_PAGES; ++i)
     {
         PageHeader& page = m_PageHeaderAllocationVec[i];
-        if (!page.isInitialized)
-        {
-            page.Init(pageSize);
+        if (!page.isInitialized)             page.Init(pageSize);
+        else if (allocationSize > PAGE_SIZE) continue;             //if current page is initialized but allocaion is greater than current page, continue
+        AllocationHeader* newAllocation = JSNULL;
+        { //protect critical section
+            std::unique_lock<std::mutex> lock(page.m_PageMutex);
+            LogDebug("Current Allocated Page:\n");
+            page.PrintPage();
+            //if free allocation index number to use is equal to max number of allocation, means it has run out of all allocations
+            newAllocation = page.allocationList.InsertAllocation(allocationSize);
         }
-        page.PrintPage();
-        //if free allocation index number to use is equal to max number of allocation, means it has run out of all allocations
-        AllocationHeader* newAllocation = page.allocationList.InsertAllocation(allocationSize);
+        
         //insert into allcation list and update new allocation properties
         if (newAllocation)
         {
@@ -50,8 +53,12 @@ void MemoeryManager::DeallocateMemory(JSvoid * toDelete)
     {
         if (realToDeleteAddr <= page.endAddr && realToDeleteAddr >= page.startAddr)
         {
-            LogDebug("Page start address: %p End address: %p\n", reinterpret_cast<JSvoid*>(page.startAddr), reinterpret_cast<JSvoid*>(page.endAddr));
-            AllocationHeader* allocationToDelete = page.allocationList.RemoveAllocation(realToDeleteAddr);
+            AllocationHeader* allocationToDelete = JSNULL;
+            { //protect critical section
+                std::unique_lock<std::mutex> lock(page.m_PageMutex);
+                page.PrintPage();
+                allocationToDelete = page.allocationList.RemoveAllocation(realToDeleteAddr);
+            }
             //printf("Size to delete: %u\n", allocationToDelete->size);
             if (allocationToDelete)
             {
@@ -185,13 +192,14 @@ void PageHeader::Init(JSuint64 size, JSbool init)
     endAddr = startAddr + size;
     memset(startAddr, INIT_VALUE, size);
     isInitialized = init;
+    LogDebug("New page allocated\n");
     PrintPage();
 }
 
 void PageHeader::PrintPage()
 {
-    printf("New page allocated\n Start address: %p End address: %p \n", reinterpret_cast<JSvoid*>(startAddr), 
-                                                                        reinterpret_cast<JSvoid*>(endAddr));
+    LogDebug("Start address: %p End address: %p \n", reinterpret_cast<JSvoid*>(startAddr), 
+                                                     reinterpret_cast<JSvoid*>(endAddr));
 }
 
 
