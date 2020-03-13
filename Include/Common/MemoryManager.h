@@ -1,18 +1,63 @@
 #pragma once
+//#define USED_FOR_PLUG_IN
+
 #include <stdlib.h>
-#include "Common\GlobalVariables.h"
-#include "Common/SingletonBaseClass.h"
-#include "DataStructure/BitArrary.h"
 #include <cstddef>
 #include <iostream>
 #include <math.h>
 #include <vector>
 #include <map>
 #include <array>
+#include <mutex>
+#include <condition_variable>
+
+#ifndef USED_FOR_PLUG_IN
+#include "Common/GlobalVariables.h"
+#include "Common/SingletonBaseClass.h"
 #include "Logger.h"
 
 //#define USING_GLOBAL_NEW
 #define g_MemoryManager Singleton<MemoeryManager>::GetInstance()
+
+#else
+#include <stdio.h>
+#include <assert.h> 
+#include <cstring>
+#define SHOW_DEBUG_INFO 1
+
+//typedef
+typedef void                JSvoid;
+typedef bool                JSbool;
+typedef bool                JSint1;
+typedef char                JSbyte;
+typedef char                JSchar;
+typedef char                JSint8;
+typedef unsigned char       JSuint8;
+typedef short               JSint16;
+typedef unsigned short      JSuint16;
+typedef int                 JSint32;
+typedef long long           JSint64;
+typedef unsigned            JSuint32;
+typedef unsigned long long  JSuint64;
+typedef float               JSfloat;
+typedef double              JSdouble;
+
+#define JSNULL NULL
+#define JSassert(x) assert(x)
+
+#define LogDebug(...) Debug(__VA_ARGS__)
+#define g_MemoryManager MemoeryManager::GetInstance()
+
+static void Debug(const char* debugMsg, ...)
+{
+    if(SHOW_DEBUG_INFO) printf(debugMsg);
+}
+
+using namespace std;
+
+#endif
+
+
 static constexpr const JSint16 NUMBER_OF_PAGES = 100;
 static constexpr const JSint16 NUMBER_OF_MAX_ALLOCATION_IN_ONE_PAGE = 100;
 static constexpr const JSint16 PAGE_SIZE = 512;
@@ -51,29 +96,42 @@ struct PageHeader
     }
     void Init(JSuint64 size, JSbool init = true);
     void PrintPage();
-    BitArray freeAllocationIndex;
     AllocationLinkedList allocationList;
     std::array<AllocationHeader, NUMBER_OF_MAX_ALLOCATION_IN_ONE_PAGE> allocationHeaderVec;
     JSbyte* startAddr = JSNULL;
     JSbyte* endAddr = JSNULL;
     JSbool isInitialized = true;
+    std::mutex m_PageMutex;
 };
 
+#ifndef USED_FOR_PLUG_IN
 class MemoeryManager : public Singleton<MemoeryManager>
+#else
+class MemoeryManager
+#endif
 {
 public:
+#ifndef USED_FOR_PLUG_IN
     friend class Singleton<MemoeryManager>;
+#else
+    static MemoeryManager& GetInstance()
+    {
+        static MemoeryManager singleton;
+        return singleton;
+    }
+#endif 
     void Release();
     void * AllocateMemory(JSuint64 size, JSuint32 numberOfAllocations);
     void DeallocateMemory(JSvoid * toDelete);
 private:
     MemoeryManager() {}
     std::array<PageHeader, NUMBER_OF_PAGES> m_PageHeaderAllocationVec;
+    std::mutex m_Mutex;
 };
 
 #ifndef USING_GLOBAL_NEW
 void * operator new (size_t size);
-void operator delete(void* toDelete);
+void operator delete(void* toDelete) noexcept(true) ;
 #endif 
 
 //void* operator new[](size_t size);
